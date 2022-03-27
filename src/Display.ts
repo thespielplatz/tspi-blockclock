@@ -1,5 +1,6 @@
 import Charset from './Charset'
 import IRenderer from './renderer/IRenderer'
+import { WRITE_LINE_MODE } from './defines'
 
 const BLACK = 0
 
@@ -8,21 +9,38 @@ class Display {
   width: number
   height: number
 
+  outputBuffer: number[][]
+
   public writeColor = 0xA0A0A0
+  public writeLineMode = WRITE_LINE_MODE.INSTANT
   public charSpacing = 1
 
   constructor(render: IRenderer, width: number, height: number) {
     this.render = render
     this.width = width
     this.height = height
+
+    this.outputBuffer = [...Array(this.height)]
+    for (let i = 0; i < this.height; i++) {
+      this.outputBuffer[i] = [...Array(this.width)].map(() => 0)
+    }
   }
 
   writeLine(text: string):void {
-    let lineCol = 0
-    let output = [...Array(this.height)]
-    for (let i = 0; i < this.height; i++) {
-      output[i] = [...Array(this.width)].map(() => 0)
+    switch (this.writeLineMode) {
+      case WRITE_LINE_MODE.DROP:
+        console.error('WRITE_LINE_MODE.DROP Not implemented!')
+        break
+
+      case WRITE_LINE_MODE.INSTANT:
+      default:
+        this.writeOutput(text)
+        this.writeBuffer()
     }
+  }
+
+  private writeOutput(text: string):void {
+    let lineCol = 0
 
     let formatted = text.toString().toLowerCase()
 
@@ -38,7 +56,7 @@ class Display {
       for (let row = 0; row < charDef.length; ++row) {
         for (let col = 0; col < charDef[row].length; ++col) {
           if (lineCol + col >= this.width) continue
-          output[row][lineCol + col] = charDef[row][col] !== 0 ? this.writeColor : BLACK
+          this.outputBuffer[row][lineCol + col] = charDef[row][col] !== 0 ? this.writeColor : BLACK
         }
       }
 
@@ -46,11 +64,13 @@ class Display {
 
       if (lineCol >= this.width) break;
     }
+  }
 
-    output[1] = output[1].reverse()
-    output[3] = output[3].reverse()
+  private writeBuffer(): void {
+    const reverseLine1 = this.outputBuffer[1].reverse()
+    const reverseLine3 = this.outputBuffer[3].reverse()
 
-    const outputInLine = output[0].concat(output[1], output[2], output[3], output[4])
+    const outputInLine = this.outputBuffer[0].concat(reverseLine1, this.outputBuffer[2], reverseLine3, this.outputBuffer[4])
 
     this.render.render(outputInLine)
   }
