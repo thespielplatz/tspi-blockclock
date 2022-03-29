@@ -1,0 +1,15 @@
+{
+  "name": "neopixel",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "rpi-ws281x-native": "^0.10.2",
+    "velocityjs": "^2.0.6"
+  }
+}
