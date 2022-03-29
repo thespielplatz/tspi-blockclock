@@ -1,7 +1,6 @@
 import Charset from './Charset'
 import IRenderer from './renderer/IRenderer'
 import { WRITE_LINE_MODE } from './defines'
-import chalk from 'chalk'
 
 const BLACK = 0
 const TRANSPARENT = -1
@@ -23,8 +22,19 @@ class Display {
     this.width = width
     this.height = height
 
-    this.foregroundBuffer = this.getEmptyBuffer(-1)
-    this.backgroundBuffer = this.getEmptyBuffer(0)
+    this.foregroundBuffer = this.getEmptyBuffer(TRANSPARENT)
+    this.backgroundBuffer = this.getEmptyBuffer(BLACK)
+  }
+
+  writeBackgroundBuffer(pixelData: number[][]) {
+    this.backgroundBuffer = pixelData
+  }
+
+  writeBackgroundPixelData(pixelData: number[]) {
+    this.backgroundBuffer = this.getEmptyBuffer(BLACK)
+    for (let i = 0; i < pixelData.length; ++i) {
+      this.backgroundBuffer[Math.floor(i / this.width)][i % this.width] = pixelData[i]
+    }
   }
 
   writeLine(text: string):void {
@@ -35,41 +45,51 @@ class Display {
 
       case WRITE_LINE_MODE.INSTANT:
       default:
-        this.writeForeground(text)
+        this.foregroundBuffer = this.getEmptyBuffer(TRANSPARENT)
+        this.writeForeground(0, text)
     }
   }
 
-  writeBackgroundPixelData(pixelData: number[]) {
-    this.backgroundBuffer = this.getEmptyBuffer(0)
-    for (let i = 0; i < pixelData.length; ++i) {
-      this.backgroundBuffer[Math.floor(i / this.width)][i % this.width] = pixelData[i]
-    }
-  }
-
-  private writeForeground(text: string):void {
-    this.foregroundBuffer = this.getEmptyBuffer(TRANSPARENT)
-
-    let lineCol = 0
-    let formatted = text.toString().toLowerCase()
-
-    for (let i = 0; i < formatted.length; i++) {
-      const char = formatted[i]
-
+  writeLastChar(text: string): void {
+    let start = this.width
+    for (let i = 0; i < text.length; ++i) {
+      const char = text[i]
       const charDef = Charset(char)
       if (charDef === null) {
         console.warn(`Char: ${char} not in charset`)
         continue
       }
+      start -= charDef[0].length
+    }
 
-      for (let row = 0; row < charDef.length; ++row) {
-        for (let col = 0; col < charDef[row].length; ++col) {
-          if (lineCol + col >= this.width) continue
-          if (charDef[row][col] !== 0) this.foregroundBuffer[row][lineCol + col] = this.writeColor
-        }
+    this.writeForeground(start, text)
+  }
+
+  private writeChar(lineCol: number, char: string): number {
+    const charDef = Charset(char)
+    if (charDef === null) {
+      console.warn(`Char: ${char} not in charset`)
+      return lineCol
+    }
+
+    for (let row = 0; row < charDef.length; ++row) {
+      for (let col = 0; col < charDef[row].length; ++col) {
+        if (lineCol + col >= this.width) continue
+        this.foregroundBuffer[row][lineCol + col] = charDef[row][col] !== 0 ? this.writeColor : TRANSPARENT
       }
+    }
 
-      lineCol += this.charSpacing + charDef[0].length
+    lineCol += charDef[0].length
 
+    return lineCol
+  }
+
+  private writeForeground(lineCol: number, text: string):void {
+    let formatted = text.toString().toLowerCase()
+
+    for (let i = 0; i < formatted.length; i++) {
+      const char = formatted[i]
+      lineCol = this.writeChar(lineCol, char) + this.charSpacing
       if (lineCol >= this.width) break;
     }
   }
