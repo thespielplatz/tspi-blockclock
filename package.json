@@ -4,14 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "run": "ts-node app.ts",
+    "run": "node build/app.js",
+    "dev": "ts-node app.ts",
     "build": "tsc --project tsconfig.json",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \\\"Error: no samples specified\\\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.26.1",
+    "chalk": "^4.0.0",
     "color-tween": "^0.1.1",
     "dotenv": "^16.0.0",
     "rpi-ws281x-native": "^0.10.2",

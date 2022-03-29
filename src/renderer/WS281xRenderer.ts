@@ -1,10 +1,12 @@
 // @ts-ignore
 import WS281x from 'rpi-ws281x-native'
 import IRenderer from './IRenderer'
+import chalk from 'chalk'
 
 const BLACK = 0x000000
 
 class WS281xRenderer implements IRenderer {
+  public reverseAlternateLines = false
   numLeds: number = 0
   brightness: number = 0
 
@@ -26,15 +28,23 @@ class WS281xRenderer implements IRenderer {
     WS281x.reset()
   }
 
-  render(colors: number[]): void {
+  render(colors: number[][]): void {
     let output = []
-    for (let i = 0; i < this.numLeds; i++) {
-      if (i < colors.length) {
-        output[i] = colors[i]
-      } else {
-        output[i] = BLACK
+    let i = 0
+
+    for (let row = 0; row < colors.length; ++row) {
+      for (let col = 0; col < colors[row].length; ++col) {
+
+        const color = colors[row][col]
+        output[i] = color
+        ++i
+
+        if (i >= this.numLeds) break
       }
+
+      if (i >= this.numLeds) break
     }
+
     WS281x.render(output)
   }
 

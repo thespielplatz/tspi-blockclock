@@ -6,6 +6,7 @@ import axios from 'axios'
 import RenderFactory from './src/renderer/RenderFactory'
 import Display from './src/Display'
 import { WRITE_LINE_MODE } from './src/defines'
+import ConsoleRenderer from './src/renderer/ConsoleRenderer'
 
 const RENDER_MACHINE: string = process.env.RENDERER || 'stubrenderer'
 const PIXEL_WIDTH: number = Number(process.env.PIXEL_WIDTH || 0)
@@ -15,6 +16,10 @@ const NUM_PIXEL = PIXEL_WIDTH * PIXEL_HEIGHT
 console.info(`Starting up ${data.name}@${data.version}`)
 
 const render = RenderFactory(RENDER_MACHINE)
+if (RENDER_MACHINE === 'consolerenderer') {
+  ;(render as ConsoleRenderer).width = PIXEL_WIDTH
+  ;(render as ConsoleRenderer).height = PIXEL_HEIGHT
+}
 
 process.on('unhandledRejection', error => {
   console.error(error)

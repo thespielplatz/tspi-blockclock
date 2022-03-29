@@ -67,12 +67,13 @@ class Display {
   }
 
   private writeBuffer(): void {
+    console.log()
     const reverseLine1 = this.outputBuffer[1].reverse()
     const reverseLine3 = this.outputBuffer[3].reverse()
 
     const outputInLine = this.outputBuffer[0].concat(reverseLine1, this.outputBuffer[2], reverseLine3, this.outputBuffer[4])
 
-    this.render.render(outputInLine)
+    this.render.render(this.outputBuffer)
   }
 }
 
