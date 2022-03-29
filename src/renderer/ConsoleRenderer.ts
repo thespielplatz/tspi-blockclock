@@ -14,7 +14,7 @@ class ConsoleRenderer implements IRenderer {
     for (let row = 0; row < this.height; ++row) {
       let out = ''
       for (let col = 0; col < this.width; ++col) {
-        const color = colors[row * this.width + col]
+        const color = colors[row][col]
         const r = Math.floor(color / 65536)
         const g = Math.floor((color % 65536) / 256)
         const b = Math.floor(color % 256)

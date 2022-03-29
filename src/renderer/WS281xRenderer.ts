@@ -14,6 +14,8 @@ class WS281xRenderer implements IRenderer {
     this.numLeds = numLeds
     this.brightness = brightness
 
+    this.reverseAlternateLines = process.env.WS281_REVERSE_LINES === 'true'
+
     WS281x.init(numLeds)
 
     if (this.brightness > 128) {
@@ -29,13 +31,19 @@ class WS281xRenderer implements IRenderer {
   }
 
   render(colors: number[][]): void {
-    let output = []
+    let output = new Uint32Array(this.numLeds)
     let i = 0
 
     for (let row = 0; row < colors.length; ++row) {
       for (let col = 0; col < colors[row].length; ++col) {
 
-        const color = colors[row][col]
+        let color = 0
+        if (row % 2 == 1 && this.reverseAlternateLines) {
+          color = colors[row][colors[row].length - 1 - col]
+        } else {
+          color = colors[row][col]
+        }
+
         output[i] = color
         ++i
 

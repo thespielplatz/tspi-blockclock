@@ -41,7 +41,7 @@ process.on ('SIGINT',() => {
 render.init(NUM_PIXEL, 10)
 
 const display = new Display(render, PIXEL_WIDTH, PIXEL_HEIGHT)
-display.writeColor = 0xFF0000
+display.writeColor = 0xFFFFFF
 display.writeLineMode = WRITE_LINE_MODE.INSTANT
 
 /*
@@ -52,13 +52,43 @@ display.writeLineMode = WRITE_LINE_MODE.INSTANT
 })()
 */
 
-// Test
-const update = () => {
+setInterval(function () {
+  rainbowBackground()
+  display.writeBuffer()
+}, 1000 / 30)
+
+// Test Foreground
+const updateText = () => {
   axios.get('https://blockstream.info/api/blocks/tip/height').then((response) => {
     console.log(response.data)
     display.writeLine(response.data)
-    setTimeout(update, 5000)
+    setTimeout(updateText, 5000)
   })
 }
+updateText()
 
-update()
+// Test Background
+// ---- animation-loop
+let offset = 0
+let pixelData = new Array(NUM_PIXEL)
+//setInterval(function () {
+const rainbowBackground = () => {
+  for (let i = 0; i < NUM_PIXEL; i++) {
+    pixelData[i] = colorwheel((offset + i) % 256);
+  }
+
+  offset = (offset + 1) % 256;
+
+  display.writeBackgroundPixelData(pixelData)
+}
+
+function colorwheel(pos: number) {
+  pos = 255 - pos;
+  if (pos < 85) { return rgb2Int(255 - pos * 3, 0, pos * 3) }
+  else if (pos < 170) { pos -= 85; return rgb2Int(0, pos * 3, 255 - pos * 3) }
+  else { pos -= 170; return rgb2Int(pos * 3, 255 - pos * 3, 0) }
+}
+
+function rgb2Int(r: number, g: number, b: number) {
+  return ((r & 0xff) << 16) + ((g & 0xff) << 8) + (b & 0xff)
+}
