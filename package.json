@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "run": "node build/app.js",
-    "dev": "nodemon app.js",
+    "dev": "ts-node app.ts",
     "build": "tsc --project tsconfig.json",
     "test": "echo \\\"Error: no samples specified\\\" && exit 1"
   },
@@ -14,8 +14,11 @@
   "dependencies": {
     "axios": "^0.26.1",
     "dotenv": "^16.0.0",
-    "nodemon": "^2.0.20",
+    "jetty": "^0.2.1",
     "rpi-ws281x-native": "^0.10.2",
     "socket.io-client": "^2.5.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
   }
 }
