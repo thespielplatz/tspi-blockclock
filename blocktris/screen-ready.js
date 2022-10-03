@@ -1,6 +1,9 @@
 const Screen = require('./screen-prototype.js')
+const StateMachine = require('./statemachine.js')
 
-class StartupScreen extends Screen {
+class ReadyScreen extends Screen {
+  static NAME = 'STATE_READY'
+
   constructor(sm, display, sg) {
     super(sm, display)
 
@@ -15,14 +18,14 @@ class StartupScreen extends Screen {
 
     this.sg.emit('start')
 
-    this.sm.switchTo(sm.STATE_GAME)
+    this.sm.switchTo(StateMachine.STATE_GAME, { playerId : ''})
   }
 
-  onEnter() {
+  onEnter(options) {
     this.display.fill(0x000000)
     this.display.setColors(0xFFFFFF)
     this.display.writeLine('Tetris', 7, 1, true)
   }
 }
 
-module.exports = StartupScreen
+module.exports = ReadyScreen

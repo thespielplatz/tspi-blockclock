@@ -1,24 +1,22 @@
 const Startup = require('./screen-startup.js')
 const Ready = require('./screen-ready.js')
 const Game = require('./screen-game.js')
+const GameOver = require('./screen-gameover.js')
 
 let active_screen = null
 let screens = {}
 
-const STATE_STARTUP = 'STATE_STARTUP'
-const STATE_READY = 'STATE_READY'
-const STATE_GAME = 'STATE_GAME'
-
-class Statemachine {
-  constructor(display, sg) {
-    screens[STATE_STARTUP] = new Startup(this, display)
-    screens[STATE_READY] = new Ready(this, display, sg)
-    screens[STATE_GAME] = new Game(this, display, sg)
-
+class StateMachine {
+  constructor() {
     this.data = {}
   }
 
-  switchTo(state, option = {}) {
+  addScreen(screenName, screen) {
+    screens[screenName] = screen
+  }
+
+  switchTo(state, options = {}) {
+    console.info(`Switching to ${state}`)
     let newScreen = (state in screens ? screens[state] : null)
 
     if (newScreen === active_screen) return
@@ -33,7 +31,7 @@ class Statemachine {
 
     active_screen = newScreen
     active_screen.isActive = true
-    active_screen.onEnter()
+    active_screen.onEnter(options)
   }
 
   sendMessage(options = {}) {
@@ -56,10 +54,7 @@ class Statemachine {
 }
 
 module.exports = {
-  Statemachine,
-  STATE_STARTUP,
-  STATE_READY,
-  STATE_GAME,
+  StateMachine,
 
-  default: Statemachine
+  default: StateMachine
 }

@@ -5,7 +5,7 @@ class Screen {
     this.isActive = false
   }
 
-  onEnter() {
+  onEnter(options = {}) {
     // test
     console.log('proto on enter')
   }

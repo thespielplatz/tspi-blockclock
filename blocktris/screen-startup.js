@@ -1,7 +1,9 @@
 const Screen = require('./screen-prototype.js')
 
 class StartupScreen extends Screen {
-  onEnter() {
+  static NAME = 'STATE_STARTUP'
+
+  onEnter(options) {
     this.display.fill(0x000000)
     this.display.setColors(0xFFFFFF)
     this.display.writeLine('startup', 5, 1, true)
