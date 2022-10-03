@@ -46,47 +46,27 @@ const socketGames = new SocketGames({
   onConnect: (data) => {
     if (data.screenId !== SCREEN_ID) {
       console.error('wrong screenId sent from BE!')
-      switchTo(STATE_STARTUP)
-      screen_startup.setError('S:screen id')
+      sm.switchTo(sm.STATE_STARTUP)
+      sm.sendMessage({ message: 'error', text: 'S:screen id'})
     } else {
-      switchTo(STATE_STARTUP)
+      sm.switchTo(sm.STATE_STARTUP)
     }
   },
   onError: (error) => {
     console.error('SocketGames: onError', { error })
-    switchTo(STATE_STARTUP)
-    screen_startup.setError('S:error')
+    sm.switchTo(sm.STATE_STARTUP)
+    sm.sendMessage({ message: 'error', text: 'S:error'})
   },
 })
 
 // ------------ Main State Machine
 
-const STATE_STARTUP = 'STATE_STARTUP'
-const STATE_IDLE = 'STATE_IDLE'
-
-let active_screen = null
-
-const screen_startup = require('./blocktris/screen-startup.js')
-
-const switchTo = (state) => {
-  let newScreen = null
-  switch (state) {
-    case STATE_STARTUP: newScreen = screen_startup; break;
-  }
-
-  if (newScreen === active_screen) return
-  if (active_screen !== null) active_screen.onExit()
-  if (newScreen === null) return
-
-  active_screen = newScreen
-  active_screen.onEnter(display)
-}
-
-switchTo(STATE_STARTUP)
+const { Statemachine, STATE_STARTUP } = require('./blocktris/statemachine')
+sm = new Statemachine(display)
+sm.switchTo(STATE_STARTUP)
 
 setInterval(function () {
-  active_screen.render()
-
+  sm.render()
   render.render(display.getPixelData())
 }, 1000 / FPS)
 

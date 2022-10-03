@@ -1,24 +1,19 @@
-let screen = {}
-let display = null
+const Screen = require('./screen-prototype.js')
 
-screen.onEnter = (theDisplay) => {
-  display = theDisplay
-  display.fill(0x000000)
-  display.setColors(0xFFFFFF)
-  display.writeLine('tetris', 7, 1, true)
+class StartupScreen extends Screen {
+  onEnter() {
+    this.display.fill(0x000000)
+    this.display.setColors(0xFFFFFF)
+    this.display.writeLine('startup', 5, 1, true)
+  }
+
+  onMessage(options) {
+    if (options.message = 'error') {
+      this.display.fill(0xA00000)
+      this.display.setColors(0xFFFFFF)
+      this.display.writeLine(options.text + ' :(', 1, 0)
+    }
+  }
 }
 
-screen.render = () => {
-}
-
-screen.onFinish = () => {
-
-}
-
-screen.setError = (text) => {
-  display.fill(0xA00000)
-  display.setColors(0xFFFFFF)
-  display.writeLine(text + ' :(', 1, 0)
-}
-
-module.exports = screen
+module.exports = StartupScreen
