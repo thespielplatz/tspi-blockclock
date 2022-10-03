@@ -1,5 +1,5 @@
 const Screen = require('./screen-prototype.js')
-const StateMachine = require('./statemachine.js')
+const Game = require('./screen-game.js')
 
 class ReadyScreen extends Screen {
   static NAME = 'STATE_READY'
@@ -9,16 +9,15 @@ class ReadyScreen extends Screen {
 
     this.sg = sg
 
-    // Todo: get clientId
-    sg.on('ready', this.onReadyMessage.bind(this))
+    sg.on('play', this.onReadyMessage.bind(this))
   }
 
-  onReadyMessage(data) {
+  onReadyMessage({ key, name }, controllerId) {
     if (!this.isActive) return
 
-    this.sg.emit('start')
+    this.sg.emit('start', null, controllerId)
 
-    this.sm.switchTo(StateMachine.STATE_GAME, { playerId : ''})
+    this.sm.switchTo(Game.NAME, { controllerId, key, name })
   }
 
   onEnter(options) {

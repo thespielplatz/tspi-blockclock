@@ -16,36 +16,39 @@ class GameScreen extends Screen {
     tetris.setOnScoreChange(this.onScoreChange.bind(this))
     tetris.setOnGameOver(this.onGameOver.bind(this))
 
-    sg.on('turn', () => {
-      if (!this.playerId) return
+    sg.on('turn', (data, controllerId) => {
+      if (this.controllerId !== controllerId) return
       tetris.actionTurn()
     })
-    sg.on('left', () => {
-      if (!this.playerId) return
+    sg.on('left', (data, controllerId) => {
+      if (this.controllerId !== controllerId) return
       tetris.actionLeft()
     })
-    sg.on('right', () => {
-      if (!this.playerId) return
+    sg.on('right', (data, controllerId) => {
+      if (this.controllerId !== controllerId) return
       tetris.actionRight()
     })
-    sg.on('down-pressed', () => {
-      if (!this.playerId) return
+    sg.on('down-pressed', (data, controllerId) => {
+      if (this.controllerId !== controllerId) return
       tetris.actionDown(true)
     })
-    sg.on('down-released', () => {
-      if (!this.playerId) return
+    sg.on('down-released', (data, controllerId) => {
+      if (this.controllerId !== controllerId) return
       tetris.actionDown(false)
     })
   }
 
   onEnter(options) {
-    this.playerId = options.playerId
+    this.key = options.key
+    this.name = options.name
+    this.controllerId = options.controllerId
+
     this.display.fill(0)
     tetris.start()
   }
 
   onLeave() {
-    this.playerId = undefined
+    this.controllerId = undefined
   }
 
   onRender(fps) {
@@ -55,12 +58,12 @@ class GameScreen extends Screen {
   }
 
   onScoreChange(score) {
-    this.sg.emit('game-update', { 'score': score })
+    this.sg.emit('game-update', { 'score': score }, this.controllerId)
   }
 
   onGameOver(score) {
-    this.sg.emit('game-over', { 'score': score })
-    this.sm.switchTo(Gameover.NAME)
+    this.sg.emit('game-over', { 'score': score }, this.controllerId)
+    this.sm.switchTo(Gameover.NAME, { controllerId: this.controllerId})
   }
 
   setPixel(x, y, c) {

@@ -45,7 +45,6 @@ display.setColors(0xFf0000, display.NOT_SET)
 
 // ------------ socket.games connection
 const SCREEN_ID = 'tspi-blockclock'
-/*
 const socketGames = new SocketGames({
   url: process.env.SOCKET_API,
   screenId: SCREEN_ID,
@@ -57,29 +56,25 @@ const socketGames = new SocketGames({
       return
     }
 
-    //sm.switchTo(Ready.NAME)
+    sm.switchTo(Ready.NAME)
   },
   onError: (error) => {
     console.error('SocketGames: onError', { error })
-      sm.switchTo(Startup.NAME)
+    sm.switchTo(Startup.NAME)
     sm.sendMessage({ message: 'error', text: 'S:error'})
   },
 })
-*/
 
-const socketGames = { on: () => {}, emit: () => {} }
+//const socketGames = { on: () => {}, emit: () => {} }
 // ------------ Main State Machine
 
 sm = new StateMachine.StateMachine()
-sm.addScreen(Startup.NAME, new Startup(this, display))
-sm.addScreen(Ready.NAME, new Ready(this, display, socketGames))
-sm.addScreen(Game.NAME, new Game(this, display, socketGames))
-sm.addScreen(GameOver.NAME, new GameOver(this, display, socketGames))
+sm.addScreen(Startup.NAME, new Startup(sm, display))
+sm.addScreen(Ready.NAME, new Ready(sm, display, socketGames))
+sm.addScreen(Game.NAME, new Game(sm, display, socketGames))
+sm.addScreen(GameOver.NAME, new GameOver(sm, display, socketGames))
 
 sm.switchTo(Startup.NAME)
-setTimeout(() => {
-  sm.switchTo(Game.NAME)
-}, 1000)
 
 setInterval(function () {
   sm.onRender(FPS)

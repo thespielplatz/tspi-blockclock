@@ -219,11 +219,21 @@ onBeforeMount(() => {
       console.error('onError', error)
     }
   })
-})
+
+  socketGames.on('start', () => {
+    playing.value = true
+  })
+
+  socketGames.on('game-update', (data: unknown) => {
+    console.log('game-update', data)
+  })
+  socketGames.on('game-over', (data: unknown) => {
+    console.log('game-over', data)
+  })
 
 
 const play = () => {
-  socketGames.emit('play')
+  socketGames.emit('play', { key: authKey.value, name: username.value })
 }
 const turn = () => {
   socketGames.emit('turn')
