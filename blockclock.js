@@ -36,17 +36,16 @@ display.setColors(0xFFFFFF, display.NOT_SET)
 
 rainbow.init(NUM_LEDS, 1.0)
 
-let pixelData = new Uint32Array(NUM_LEDS)
-
 setInterval(function () {
-  rainbow.nextStep(pixelData)
-  blocktime.render(pixelData)
-  movingblock.render(pixelData)
-  render.render(pixelData)
+  rainbow.nextStep(display)
+  blocktime.render(display)
+  movingblock.render(display)
+  render.render(display.getPixelData())
 }, 1000 / FPS)
 
 
 blocktime.start()
+
 blocktime.setNewBlockCallback(() => {
   rainbow.setBrightness(0)
 
@@ -56,4 +55,3 @@ blocktime.setNewBlockCallback(() => {
     rainbow.fadeOn()
   })
 })
-
