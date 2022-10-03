@@ -1,13 +1,36 @@
 <template>
-  <div class="grid place-items-center text-center min-h-screen">
+  <div class="flex flex-col place-items-center text-center min-h-screen">
+    <HeadlineDefault
+      class="pt-3"
+      level="h1"
+    >
+      Blocktris
+    </HeadlineDefault>
     <div v-if="connecting">
-      <HeadlineDefault level="h1">
-        Blocktris
-      </HeadlineDefault>
       <p>by <a href="https://satoshiengineering.com" target="_blank">Satoshi Engineering</a></p>
     </div>
     <div v-else-if="!connected">
       <p>Blockclock offline :-(</p>
+    </div>
+    <div
+      v-else-if="authKey == null && lnurlEncoded != null"
+      class="flex-1 grid place-items-center"
+    >
+      <a
+        v-if="!authenticating"
+        class="bg-grey p-3"
+        :href="`lightning:${lnurlEncoded}`"
+      >Open wallet to authenticate</a>
+    </div>
+    <div
+      v-else-if="authKey == null"
+      class="flex-1 grid place-items-center"
+    >
+      <button
+        class="bg-grey p-3"
+        @click="createLnurlAuth()"
+        @disabled="authenticating"
+      >Login via LNURL-auth</button>
     </div>
     <div
       class="game-grid grid min-h-screen w-full"
@@ -39,12 +62,55 @@
 </template>
 
 <script setup lang="ts">
+import axios from 'axios'
 import { onBeforeMount, ref } from 'vue'
 
 import HeadlineDefault from '@/components/typography/HeadlineDefault.vue'
 import SocketGames from '@/modules/SocketGames'
 import { BACKEND_ORIGIN } from '@/constants'
 
+/////
+// AUTH
+const authenticating = ref(false)
+const lnurlHash = ref<string>()
+const lnurlEncoded = ref<string>()
+const authKey = ref<string>()
+
+const resetAuth = () => {
+  authenticating.value = false
+  lnurlHash.value = undefined
+  lnurlEncoded.value = undefined
+  authKey.value = undefined
+}
+
+const createLnurlAuth = async () => {
+  authenticating.value = true
+  const response = await axios.get('https://lnurl.sate.tools/api/lnurl/create')
+  lnurlHash.value = response.data.data.hash
+  lnurlEncoded.value = response.data.data.encoded
+  authenticating.value = false
+}
+
+onBeforeMount(() => {
+  document.addEventListener('visibilitychange', async (event) => {
+    if (document.visibilityState !== 'visible' || lnurlHash.value == null) {
+      return
+    }
+    authenticating.value = true
+    try {
+      const response = await axios.get(`https://lnurl.sate.tools/api/lnurl/status/${lnurlHash.value}`)
+      if (response.data.status === 'success') {
+        authKey.value = response.data.data
+        authenticating.value = false
+        return
+      }
+    } catch (error) {}
+    resetAuth()
+  })
+})
+
+/////
+// SOCKET GAMES SERVER
 const connecting = ref(true)
 const connected = ref(false)
 
