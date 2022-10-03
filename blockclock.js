@@ -1,10 +1,11 @@
-console.info('Neo Pixel Controller')
+console.info('Blockclock Starting ...')
 
 const render = require('./lib/render.js')
-const rainbow = require('./lib/rainbow.js')
-const blocktime = require('./lib/blocktime.js')
-const movingblock = require('./lib/movingblock.js')
 const display = require('./lib/display.js')
+
+const rainbow = require('./blockclock/rainbow.js')
+const blocktime = require('./blockclock/blocktime.js')
+const movingblock = require('./blockclock/movingblock.js')
 
 const NUM_LEDS = 250
 const FPS = 60
