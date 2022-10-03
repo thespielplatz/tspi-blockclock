@@ -31,7 +31,8 @@
       >RIGHT</button>
       <button
         class="[grid-area:down] bg-controls border border-white"
-        @click="down()"
+        @mousedown="downPressed()"
+        @mouseup="downReleased()"
       >DOWN</button>
     </div>
   </div>
@@ -72,8 +73,11 @@ const left = () => {
 const right = () => {
   socketGames.emit('right')
 }
-const down = () => {
-  socketGames.emit('down')
+const downPressed = () => {
+  socketGames.emit('down-pressed')
+}
+const downReleased = () => {
+  socketGames.emit('down-released')
 }
 </script>
 

@@ -1,8 +1,10 @@
 console.info('Blocktris start')
 
+require('dotenv').config()
 const render = require('./lib/render.js')
 const display = require('./lib/display.js')
 const tetris = require('./lib/tetris/tetris.js')
+const SocketGames = require('./lib/SocketGames.js')
 
 const NUM_LEDS = 250
 const FPS = 60
@@ -54,3 +56,31 @@ setInterval(function () {
   render.render(pixelData)
 }, 1000 / FPS)
 
+const SCREEN_ID = 'tspi-blockclock'
+const socketGames = new SocketGames({
+  url: process.env.SOCKET_API,
+  screenId: SCREEN_ID,
+  onConnect: (data) => {
+    if (data.screenId !== SCREEN_ID) {
+      console.error('wrong screenId sent from BE!')
+    }
+  },
+  onError: (error) => {
+    console.error('SocketGames: onError', { error })
+  },
+})
+socketGames.on('turn', () => {
+  tetris.actionTurn()
+})
+socketGames.on('left', () => {
+  tetris.actionLeft()
+})
+socketGames.on('right', () => {
+  tetris.actionRight()
+})
+socketGames.on('down-pressed', () => {
+  tetris.actionDown(true)
+})
+socketGames.on('down-released', () => {
+  tetris.actionDown(false)
+})

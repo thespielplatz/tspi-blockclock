@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "run": "node build/app.js",
-    "dev": "ts-node app.ts",
+    "dev": "nodemon blocktris.js",
     "build": "tsc --project tsconfig.json",
     "test": "echo \\\"Error: no samples specified\\\" && exit 1"
   },
