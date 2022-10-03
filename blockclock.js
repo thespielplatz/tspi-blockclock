@@ -11,8 +11,6 @@ const FPS = 60
 const WIDTH = 50
 const HEIGHT = 5
 
-const pause = (milliseconds) => new Promise(res => setTimeout(res, milliseconds));
-
 process.on('unhandledRejection', error => {
   console.error(error)
   render.deinit()
@@ -39,8 +37,6 @@ display.setColors(0xFFFFFF, display.NOT_SET)
 rainbow.init(NUM_LEDS, 1.0)
 
 let pixelData = new Uint32Array(NUM_LEDS)
-let text = "Little Hodler"
-let showrainbow = true
 
 setInterval(function () {
   rainbow.nextStep(pixelData)
