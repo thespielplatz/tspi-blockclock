@@ -28,14 +28,12 @@ class GameScreen extends Screen {
       if (this.controllerId !== controllerId) return
       tetris.actionRight()
     })
-    sg.on('down-pressed', (data, controllerId) => {
+    sg.on('down', (data, controllerId) => {
       if (this.controllerId !== controllerId) return
-      tetris.actionDown(true)
+      tetris.actionDown()
     })
-    sg.on('down-released', (data, controllerId) => {
-      if (this.controllerId !== controllerId) return
-      tetris.actionDown(false)
-    })
+
+    setTimeout(() => { tetris.actionDown() }, 500)
   }
 
   onEnter(options) {
