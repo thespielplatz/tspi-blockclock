@@ -8,11 +8,13 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'grey': '#a5a5a5',
+        'grey': '#212529',
         'grey-light': '#f1f1f1',
         'black': '#000',
         'white': '#fff',
-        'controls': '#F7931A',
+        'controls': '#6b3d91',
+        'controls-text': '#8d5cb5',
+        'purple': '#7a6b88',
       },
       fontFamily: {
         emoji: ['Apple Color Emoji', 'Segoe UI Emoji', 'NotoColorEmoji', 'Segoe UI Symbol', 'Android Emoji', 'EmojiSymbols', 'EmojiOne Mozilla'],

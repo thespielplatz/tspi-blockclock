@@ -1,10 +1,14 @@
 <template>
-  <div class="flex flex-col place-items-center text-center min-h-screen">
+  <div class="flex flex-col place-items-center text-center min-h-screen bg-grey text-white">
     <HeadlineDefault
       class="pt-3"
       level="h1"
     >
-      Blocktris
+      <img
+        class="inline-block w-6 mt-[-8px]"
+        src="@/assets/img/tetris.png"
+      />
+      BLOCKTRIS
     </HeadlineDefault>
     <p v-if="username != null">Playing as {{ username }}</p>
     <p v-else-if="playingAsGuest">Playing as guest</p>
@@ -20,7 +24,7 @@
     >
       <a
         v-if="!authenticating"
-        class="bg-grey p-3"
+        class="cta py-3 px-5 rounded-full font-bold"
         :href="`lightning:${lnurlEncoded}`"
       >Open wallet to authenticate</a>
     </div>
@@ -29,62 +33,86 @@
       class="flex-1 grid place-items-center"
     >
       <button
-        class="bg-grey p-3"
+        class="cta py-3 px-5 rounded-full font-bold"
         @click="createLnurlAuth()"
         @disabled="authenticating"
       >Login via LNURL-auth</button>
     </div>
     <div
       v-else-if="username == null && !playingAsGuest"
-      class="flex-1 grid place-items-center"
+      class="flex-1 grid place-items-center p-5"
     >
       <p v-if="checkingUsername || settingUsername">Loading ...</p>
       <div v-else>
         <input
           v-model="newUsername"
           type="text"
-          class="w-full border my-1 px-3 py-2 focus:outline-none"
+          class="w-full border mb-3 px-3 py-2 focus:outline-none text-black"
           placeholder="Your name"
           :disabled="settingUsername"
         >
         <button
-          class="bg-grey p-3"
+          class="cta mb-16 py-3 px-5 rounded-full font-bold"
           :disabled="settingUsername"
           @click="setUsername"
         >Set my name</button>
-        <br>
-        OR
-        <br>
+        <span class="block mb-3">OR</span>
         <button
-          class="bg-grey p-3"
+          class="py-3 px-5 rounded-full bg-purple font-bold"
           @click="playAsGuest"
         >Play as guest</button>
       </div>
     </div>
     <div
-      class="game-grid grid min-h-screen w-full"
+      class="flex-1 game-grid grid w-full"
       v-else-if="playing"
     >
-      <HeadlineDefault
-        class="[grid-area:header]"
-        level="h1"
-      >let's play</HeadlineDefault>
+      <div class="[grid-area:header] pt-5">
+        <HeadlineDefault
+          level="h2"
+        >
+        <img
+          class="inline-block w-6 mt-[-8px]"
+          src="@/assets/img/clock.png"
+        /> {{ timeElapsed }}
+        </HeadlineDefault>
+        <HeadlineDefault
+          level="h2"
+        >
+        <img
+          class="inline-block w-6 mt-[-6px]"
+          src="@/assets/img/trophy.png"
+        /> {{ score }}
+        </HeadlineDefault>
+      </div>
+      <div
+        v-if="gameOver"
+        class="[grid-area:turn]"
+      >
+        <button
+          class="cta mb-16 py-3 px-5 rounded-full font-bold"
+          @click="playAgain"
+        >Play again</button>
+      </div>
       <button
-        class="[grid-area:turn] bg-controls border border-white"
+        v-if="!gameOver"
+        class="[grid-area:turn] bg-controls border-4 border-grey font-bold text-4xl text-controls-text"
         @click="turn()"
       >TURN</button>
       <button
-        class="[grid-area:left] bg-controls border border-white"
+        v-if="!gameOver"
+        class="[grid-area:left] bg-controls border-4 border-grey font-bold text-4xl text-controls-text"
         @click="left()"
       >LEFT</button>
       <button
-        class="[grid-area:right] bg-controls border border-white"
+        v-if="!gameOver"
+        class="[grid-area:right] bg-controls border-4 border-grey font-bold text-4xl text-controls-text"
         @click="right()"
       >RIGHT</button>
       <button
-        class="[grid-area:down] bg-controls border border-white"
-        @mousedown="downPressed()"
-        @mouseup="downReleased()"
+        v-if="!gameOver"
+        class="[grid-area:down] bg-controls border-4 border-grey font-bold text-4xl text-controls-text"
+        @click="down()"
       >DOWN</button>
     </div>
     <div
@@ -92,7 +120,7 @@
       class="flex-1 grid place-items-center"
     >
       <button
-        class="bg-grey p-3"
+        class="cta py-3 px-5 rounded-full font-bold"
         @click="play()"
       >Play</button>
     </div>
@@ -204,6 +232,10 @@ const playAsGuest = () => {
 const connecting = ref(true)
 const connected = ref(false)
 const playing = ref(false)
+const score = ref(0)
+const timeStart = ref<number>()
+const timeElapsed = ref<string>()
+const gameOver = ref(false)
 
 let socketGames: SocketGames
 onBeforeMount(() => {
@@ -222,15 +254,17 @@ onBeforeMount(() => {
 
   socketGames.on('start', () => {
     playing.value = true
+    timeStart.value = Math.floor(+ new Date() / 1000)
   })
 
-  socketGames.on('game-update', (data: unknown) => {
-    console.log('game-update', data)
+  socketGames.on('game-update', ({ score: scoreLocal }: { score: number }) => {
+    score.value = scoreLocal
   })
-  socketGames.on('game-over', (data: unknown) => {
-    console.log('game-over', data)
+  socketGames.on('game-over', ({ score: scoreLocal }: { score: number }) => {
+    score.value = scoreLocal
+    gameOver.value = true
   })
-
+})
 
 const play = () => {
   socketGames.emit('play', { key: authKey.value, name: username.value })
@@ -244,11 +278,33 @@ const left = () => {
 const right = () => {
   socketGames.emit('right')
 }
-const downPressed = () => {
-  socketGames.emit('down-pressed')
+const down = () => {
+  socketGames.emit('down')
 }
-const downReleased = () => {
-  socketGames.emit('down-released')
+
+const updateTimer = () => {
+  setTimeout(updateTimer, 100)
+  if (gameOver.value) {
+    return
+  }
+  if (timeStart.value == null) {
+    timeElapsed.value = undefined
+    return
+  }
+  const total = Math.floor(+ new Date() / 1000) - timeStart.value
+  const minutes = String(Math.floor(total / 60)).padStart(2, '0')
+  const seconds = String(total % 60).padStart(2, '0')
+  timeElapsed.value = `${minutes}:${seconds}` 
+}
+updateTimer()
+
+const playAgain = () => {
+  playing.value = false
+  score.value = 0
+  timeStart.value = undefined
+  timeElapsed.value = undefined
+  gameOver.value = false
+  play()
 }
 </script>
 
@@ -257,5 +313,9 @@ const downReleased = () => {
   grid-template-columns: 50% 50%;
   grid-template-rows: 30% 2fr 3fr 2fr;
   grid-template-areas: "header header" "turn turn" "left right" "down down";
+}
+
+.cta {
+  background-image: linear-gradient(-45deg, rgb(107, 61, 145) 0%, rgb(174, 39, 143) 32%, rgb(231, 0, 117) 64%, rgb(236, 0, 108) 70%, rgb(248, 1, 82) 80%, rgb(255, 1, 67) 85%, rgb(255, 11, 57) 88%, rgb(255, 39, 31) 94%, rgb(255, 71, 0) 100%);
 }
 </style>
