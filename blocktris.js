@@ -1,4 +1,4 @@
-console.info('Blocktris start')
+console.info('Blocktris Starting ...')
 
 require('dotenv').config()
 const render = require('./lib/render.js')
@@ -39,7 +39,7 @@ display.init(WIDTH, HEIGHT)
 display.setColors(0xFf0000, display.NOT_SET)
 
 // ------------ socket.games connection
-
+/*
 const SCREEN_ID = 'tspi-blockclock'
 const socketGames = new SocketGames({
   url: process.env.SOCKET_API,
@@ -53,8 +53,7 @@ const socketGames = new SocketGames({
     console.error('SocketGames: onError', { error })
   },
 })
-
-let text = "Little Hodler"
+*/
 
 // ------------ Main State Machine
 
@@ -63,23 +62,18 @@ const STATE_IDLE = 'STATE_IDLE'
 
 let app_state = STATE_IDLE
 
-const screen_wait = require('./tetris/screen-wait.js')
-screen_wait.init(display)
+const screen_startup = require('./blocktris/screen-startup.js')
+
+screen_startup.onEnter(display)
 
 setInterval(function () {
-  display.fill(pixelData, 0x000000)
-  display.writeLine(pixelData, text)
-  //render.render(pixelData)
-  text = '#' + text
-
   switch (app_state) {
     case STATE_INIT:
-      screen_wait.render()
+      screen_startup.render(display)
       break;
   }
 
-
-  render.render(pixelData)
+  render.render(display.getPixelData())
 }, 1000 / FPS)
 
 
