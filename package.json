@@ -13,15 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.26.1",
-    "chalk": "^4.0.0",
-    "color-tween": "^0.1.1",
     "dotenv": "^16.0.0",
-    "rpi-ws281x-native": "^0.10.2",
-    "velocityjs": "^2.0.6"
-  },
-  "devDependencies": {
-    "@types/node": "^17.0.23",
-    "ts-node": "^10.7.0",
-    "typescript": "^4.6.3"
+    "rpi-ws281x-native": "^0.10.2"
   }
 }

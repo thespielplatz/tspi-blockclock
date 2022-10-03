@@ -6,7 +6,6 @@ Private homebrew project for a blockclock
 - Raspberry PI Zero W
 - Neopixel (ws281x)
 
-
 ### Power Calculations
 
 POWER of a pixel == 0,06A (per LED 0,02A)
