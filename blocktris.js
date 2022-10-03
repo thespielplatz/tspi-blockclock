@@ -39,7 +39,6 @@ display.init(WIDTH, HEIGHT)
 display.setColors(0xFf0000, display.NOT_SET)
 
 // ------------ socket.games connection
-/*
 const SCREEN_ID = 'tspi-blockclock'
 const socketGames = new SocketGames({
   url: process.env.SOCKET_API,
@@ -47,31 +46,46 @@ const socketGames = new SocketGames({
   onConnect: (data) => {
     if (data.screenId !== SCREEN_ID) {
       console.error('wrong screenId sent from BE!')
+      switchTo(STATE_STARTUP)
+      screen_startup.setError('S:screen id')
+    } else {
+      switchTo(STATE_STARTUP)
     }
   },
   onError: (error) => {
     console.error('SocketGames: onError', { error })
+    switchTo(STATE_STARTUP)
+    screen_startup.setError('S:error')
   },
 })
-*/
 
 // ------------ Main State Machine
 
-const STATE_INIT = 'STATE_INIT'
+const STATE_STARTUP = 'STATE_STARTUP'
 const STATE_IDLE = 'STATE_IDLE'
 
-let app_state = STATE_IDLE
+let active_screen = null
 
 const screen_startup = require('./blocktris/screen-startup.js')
 
-screen_startup.onEnter(display)
+const switchTo = (state) => {
+  let newScreen = null
+  switch (state) {
+    case STATE_STARTUP: newScreen = screen_startup; break;
+  }
+
+  if (newScreen === active_screen) return
+  if (active_screen !== null) active_screen.onExit()
+  if (newScreen === null) return
+
+  active_screen = newScreen
+  active_screen.onEnter(display)
+}
+
+switchTo(STATE_STARTUP)
 
 setInterval(function () {
-  switch (app_state) {
-    case STATE_INIT:
-      screen_startup.render(display)
-      break;
-  }
+  active_screen.render()
 
   render.render(display.getPixelData())
 }, 1000 / FPS)

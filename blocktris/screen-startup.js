@@ -1,19 +1,24 @@
-const display = require('../lib/display')
-
 let screen = {}
+let display = null
 
-screen.onEnter = (display) => {
+screen.onEnter = (theDisplay) => {
+  display = theDisplay
   display.fill(0x000000)
   display.setColors(0xFFFFFF)
-
   display.writeLine('tetris', 7, 1, true)
 }
 
-screen.render = (display) => {
+screen.render = () => {
 }
 
-screen.onFinish = (display) => {
+screen.onFinish = () => {
 
+}
+
+screen.setError = (text) => {
+  display.fill(0xA00000)
+  display.setColors(0xFFFFFF)
+  display.writeLine(text + ' :(', 1, 0)
 }
 
 module.exports = screen
