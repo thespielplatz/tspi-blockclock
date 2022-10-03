@@ -4,6 +4,7 @@ require('dotenv').config()
 const render = require('./lib/render.js')
 const display = require('./lib/display.js')
 const SocketGames = require('./lib/SocketGames.js')
+const Statemachine = require('./blocktris/statemachine')
 
 const NUM_LEDS = 250
 const FPS = 60
@@ -40,33 +41,37 @@ display.setColors(0xFf0000, display.NOT_SET)
 
 // ------------ socket.games connection
 const SCREEN_ID = 'tspi-blockclock'
+/*
 const socketGames = new SocketGames({
   url: process.env.SOCKET_API,
   screenId: SCREEN_ID,
   onConnect: (data) => {
     if (data.screenId !== SCREEN_ID) {
       console.error('wrong screenId sent from BE!')
-      sm.switchTo(sm.STATE_STARTUP)
+      sm.switchTo(Statemachine.STATE_STARTUP)
       sm.sendMessage({ message: 'error', text: 'S:screen id'})
-    } else {
-      sm.switchTo(sm.STATE_STARTUP)
+      return
     }
+
+    //sm.switchTo(Statemachine.STATE_READY)
   },
   onError: (error) => {
     console.error('SocketGames: onError', { error })
-    sm.switchTo(sm.STATE_STARTUP)
+    sm.switchTo(Statemachine.STATE_STARTUP)
     sm.sendMessage({ message: 'error', text: 'S:error'})
   },
 })
+*/
 
+const socketGames = { on: () => {} }
 // ------------ Main State Machine
 
-const { Statemachine, STATE_STARTUP } = require('./blocktris/statemachine')
-sm = new Statemachine(display)
-sm.switchTo(STATE_STARTUP)
+sm = new Statemachine.Statemachine(display, socketGames)
+//sm.switchTo(Statemachine.STATE_STARTUP)
+sm.switchTo(Statemachine.STATE_GAME)
 
 setInterval(function () {
-  sm.render()
+  sm.onRender(FPS)
   render.render(display.getPixelData())
 }, 1000 / FPS)
 

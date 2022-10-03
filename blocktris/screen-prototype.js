@@ -2,6 +2,7 @@ class Screen {
   constructor(statemachine, display) {
     this.display = display
     this.sm = statemachine
+    this.isActive = false
   }
 
   onEnter() {
@@ -9,7 +10,7 @@ class Screen {
     console.log('proto on enter')
   }
 
-  render() {}
+  onRender(fps) {}
   onMessage(option = {})  {}
   onLeave() {}
 }

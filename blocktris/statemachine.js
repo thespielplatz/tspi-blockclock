@@ -1,29 +1,38 @@
 const Startup = require('./screen-startup.js')
+const Ready = require('./screen-ready.js')
+const Game = require('./screen-game.js')
 
 let active_screen = null
-let screen_startup = null
+let screens = {}
 
 const STATE_STARTUP = 'STATE_STARTUP'
-const STATE_IDLE = 'STATE_IDLE'
+const STATE_READY = 'STATE_READY'
+const STATE_GAME = 'STATE_GAME'
 
 class Statemachine {
-  constructor(theDisplay) {
-    this.display = theDisplay
+  constructor(display, sg) {
+    screens[STATE_STARTUP] = new Startup(this, display)
+    screens[STATE_READY] = new Ready(this, display, sg)
+    screens[STATE_GAME] = new Game(this, display, sg)
 
-    screen_startup = new Startup(this, theDisplay)
+    this.data = {}
   }
 
   switchTo(state, option = {}) {
-    let newScreen = null
-    switch (state) {
-      case STATE_STARTUP: newScreen = screen_startup; break;
-    }
+    let newScreen = (state in screens ? screens[state] : null)
 
     if (newScreen === active_screen) return
-    if (active_screen !== null) active_screen.onLeave()
+
+    if (active_screen !== null) {
+      active_screen.onLeave()
+      active_screen.isActive = false
+      active_screen = null
+    }
+
     if (newScreen === null) return
 
     active_screen = newScreen
+    active_screen.isActive = true
     active_screen.onEnter()
   }
 
@@ -31,15 +40,26 @@ class Statemachine {
     if (active_screen !== null) active_screen.onMessage(options)
   }
 
-  render() {
-    if (active_screen !== null) active_screen.render()
+  onRender(fps) {
+    if (active_screen !== null) active_screen.onRender(fps)
+  }
+
+  setData(key, value) {
+    this.data[key] = value
+  }
+
+  getData(key) {
+    if (!(key in this.data)) return undefined
+
+    return this.data[key]
   }
 }
 
 module.exports = {
   Statemachine,
   STATE_STARTUP,
-  STATE_IDLE,
+  STATE_READY,
+  STATE_GAME,
 
   default: Statemachine
 }
