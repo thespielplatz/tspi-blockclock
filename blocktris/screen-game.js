@@ -55,7 +55,7 @@ class GameScreen extends Screen {
   }
 
   onNextPiece(type, color) {
-    this.sg.emit('next-piece', { 'type': type, 'color': color }, this.controllerId)
+    this.sg.broadcast('next-piece', { 'type': type, 'color': color }, this.controllerId)
   }
 
   onScoreChange(score) {

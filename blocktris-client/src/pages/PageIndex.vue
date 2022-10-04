@@ -5,7 +5,7 @@
       level="h1"
     >
       <TetrisPiece
-        v-if="nextPiece != null"
+        v-if="nextPiece != null && !playing"
         class="inline-block w-6 mt-[-8px]"
         :piece="nextPiece"
       />
@@ -144,7 +144,7 @@
         /> {{ score }}
         </HeadlineDefault>
         <TetrisPiece
-          class="inline-block w-16"
+          class="inline-block"
           :piece="nextPiece"
         />
       </div>
