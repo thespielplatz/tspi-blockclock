@@ -258,13 +258,13 @@ onBeforeMount(() => {
 
   socketGames.on('start', () => {
     playing.value = true
-    timeStart.value = Math.floor(+ new Date() / 1000)
+    timeStart.value = Math.floor(+new Date() / 1000)
   })
 
-  socketGames.on('game-update', ({ score: scoreLocal }: { score: number }) => {
+  socketGames.on('game-update', ({score: scoreLocal}: { score: number }) => {
     score.value = scoreLocal
   })
-  socketGames.on('game-over', ({ score: scoreLocal }: { score: number }) => {
+  socketGames.on('game-over', ({score: scoreLocal}: { score: number }) => {
     score.value = scoreLocal
     gameOver.value = true
   })
@@ -301,7 +301,7 @@ const updateTimer = () => {
   const total = Math.floor(+ new Date() / 1000) - timeStart.value
   const minutes = String(Math.floor(total / 60)).padStart(2, '0')
   const seconds = String(total % 60).padStart(2, '0')
-  timeElapsed.value = `${minutes}:${seconds}` 
+  timeElapsed.value = `${minutes}:${seconds}`
 }
 updateTimer()
 

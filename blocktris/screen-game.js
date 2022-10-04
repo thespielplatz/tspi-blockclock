@@ -1,15 +1,14 @@
 const Screen = require('./screen-prototype.js')
-const Gameover = require('./screen-gameover.js')
 
 const Tetris = require('./../lib/tetris/tetris.js')
 let tetris
 
 class GameScreen extends Screen {
-  static NAME = 'STATE_GAME'
-
   constructor(sm, display, sg) {
     super(sm, display)
     this.sg = sg
+
+    let self = this
 
     tetris = new Tetris(display.getHeight(), display.getWidth())
 
@@ -17,23 +16,23 @@ class GameScreen extends Screen {
     tetris.setOnGameOver(this.onGameOver.bind(this))
 
     sg.on('turn', (data, controllerId) => {
-      if (this.controllerId !== controllerId) return
+      if (self.controllerId !== controllerId) return
       tetris.actionTurn()
     })
     sg.on('left', (data, controllerId) => {
-      if (this.controllerId !== controllerId) return
+      if (self.controllerId !== controllerId) return
       tetris.actionLeft()
     })
     sg.on('right', (data, controllerId) => {
-      if (this.controllerId !== controllerId) return
+      if (self.controllerId !== controllerId) return
       tetris.actionRight()
     })
     sg.on('down', (data, controllerId) => {
-      if (this.controllerId !== controllerId) return
+      if (self.controllerId !== controllerId) return
       tetris.actionDown()
     })
 
-    setTimeout(() => { tetris.actionDown() }, 500)
+    setInterval(() => { tetris.actionDown() }, 500)
   }
 
   onEnter(options) {
@@ -50,6 +49,8 @@ class GameScreen extends Screen {
   }
 
   onRender(fps) {
+    if (!this.isActive) return
+
     tetris.update(1.0 / fps)
     this.display.fill(0)
     tetris.draw(this.setPixel.bind(this))
@@ -61,7 +62,7 @@ class GameScreen extends Screen {
 
   onGameOver(score) {
     this.sg.emit('game-over', { 'score': score }, this.controllerId)
-    this.sm.switchTo(Gameover.NAME, { controllerId: this.controllerId})
+    this.sm.switchTo(Screen.GAME_OVERE, { controllerId: this.controllerId})
   }
 
   setPixel(x, y, c) {

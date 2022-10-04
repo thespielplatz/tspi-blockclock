@@ -5,6 +5,7 @@ const GameOver = require('./screen-gameover.js')
 
 let active_screen = null
 let screens = {}
+let next_screen = null
 
 class StateMachine {
   constructor() {
@@ -17,13 +18,20 @@ class StateMachine {
 
   switchTo(state, options = {}) {
     console.info(`Switching to ${state}`)
+    next_screen = {state, options}
+  }
+
+  switchToNextScreen() {
+    let state = next_screen.state
+    let options = next_screen.options
+
     let newScreen = (state in screens ? screens[state] : null)
 
     if (newScreen === active_screen) return
 
     if (active_screen !== null) {
-      active_screen.onLeave()
       active_screen.isActive = false
+      active_screen.onLeave()
       active_screen = null
     }
 
@@ -39,6 +47,10 @@ class StateMachine {
   }
 
   onRender(fps) {
+    if (next_screen !== null) {
+      this.switchToNextScreen()
+      next_screen = null
+    }
     if (active_screen !== null) active_screen.onRender(fps)
   }
 

@@ -1,9 +1,6 @@
 const Screen = require('./screen-prototype.js')
-const Game = require('./screen-game.js')
 
 class ReadyScreen extends Screen {
-  static NAME = 'STATE_READY'
-
   constructor(sm, display, sg) {
     super(sm, display)
 
@@ -17,7 +14,7 @@ class ReadyScreen extends Screen {
 
     this.sg.emit('start', null, controllerId)
 
-    this.sm.switchTo(Game.NAME, { controllerId, key, name })
+    this.sm.switchTo(Screen.GAME, { controllerId, key, name })
   }
 
   onEnter(options) {

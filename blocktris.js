@@ -5,6 +5,7 @@ const render = require('./lib/render.js')
 const display = require('./lib/display.js')
 const SocketGames = require('./lib/SocketGames.js')
 const StateMachine = require('./blocktris/statemachine')
+const Screen = require('./blocktris/screen-prototype.js')
 const Startup = require('./blocktris/screen-startup')
 const Ready = require('./blocktris/screen-ready')
 const Game = require('./blocktris/screen-game')
@@ -51,7 +52,7 @@ const socketGames = new SocketGames({
   onConnect: (data) => {
     if (data.screenId !== SCREEN_ID) {
       console.error('wrong screenId sent from BE!')
-      sm.switchTo(Startup.NAME)
+      sm.switchTo(Screen.STARTUP)
       sm.sendMessage({ message: 'error', text: 'S:screen id'})
       return
     }
@@ -60,7 +61,7 @@ const socketGames = new SocketGames({
   },
   onError: (error) => {
     console.error('SocketGames: onError', { error })
-    sm.switchTo(Startup.NAME)
+    sm.switchTo(Screen.STARTUP)
     sm.sendMessage({ message: 'error', text: 'S:error'})
   },
 })
@@ -69,12 +70,12 @@ const socketGames = new SocketGames({
 // ------------ Main State Machine
 
 sm = new StateMachine.StateMachine()
-sm.addScreen(Startup.NAME, new Startup(sm, display))
-sm.addScreen(Ready.NAME, new Ready(sm, display, socketGames))
-sm.addScreen(Game.NAME, new Game(sm, display, socketGames))
-sm.addScreen(GameOver.NAME, new GameOver(sm, display, socketGames))
+sm.addScreen(Screen.STARTUP, new Startup(sm, display))
+sm.addScreen(Screen.READY, new Ready(sm, display, socketGames))
+sm.addScreen(Screen.GAME, new Game(sm, display, socketGames))
+sm.addScreen(Screen.GAME_OVER, new GameOver(sm, display, socketGames))
 
-sm.switchTo(Startup.NAME)
+sm.switchTo(Screen.STARTUP)
 
 setInterval(function () {
   sm.onRender(FPS)
