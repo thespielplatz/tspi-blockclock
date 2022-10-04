@@ -53,11 +53,17 @@
         @click="createLnurlAuth()"
       >Login via LNURL-auth</button>
       <span
-        v-if="connected"
+        v-if="connected || (lnurlEncoded != null && hasClipboard)"
         class="block mt-12 mb-3"
       >OR</span>
+      <span v-if="recentlyCopied">Copied ...</span>
       <button
-        v-if="connected"
+        v-else-if="lnurlEncoded != null && hasClipboard"
+        class="py-3 px-5 rounded-full bg-purple font-bold"
+        @click="copyLnurlToClipboard"
+      >Copy to clipboard</button>
+      <button
+        v-else-if="connected"
         class="py-3 px-5 rounded-full bg-purple font-bold"
         @click="playAsGuest"
       >Play as guest</button>
@@ -203,6 +209,8 @@ const lnurlEncoded = ref<string>()
 const authKey = ref<string>()
 const checkingHighscores = ref(false)
 const playingAsGuest = ref(false)
+const hasClipboard = navigator.clipboard != null
+const recentlyCopied = ref(false)
 
 const resetAuth = () => {
   authenticating.value = false
@@ -211,6 +219,7 @@ const resetAuth = () => {
   authKey.value = undefined
   checkingHighscores.value = false
   playingAsGuest.value = false
+  recentlyCopied.value = false
 }
 
 const createLnurlAuth = async () => {
@@ -219,6 +228,16 @@ const createLnurlAuth = async () => {
   lnurlHash.value = response.data.data.hash
   lnurlEncoded.value = response.data.data.encoded
   authenticating.value = false
+}
+
+const copyLnurlToClipboard = async () => {
+  if (lnurlEncoded.value == null) {
+    return
+  }
+  await navigator.clipboard.writeText(lnurlEncoded.value)
+  recentlyCopied.value = true
+  await new Promise(resolve => setTimeout(resolve, 1500))
+  recentlyCopied.value = false
 }
 
 onBeforeMount(() => {
