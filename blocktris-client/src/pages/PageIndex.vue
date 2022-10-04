@@ -253,7 +253,7 @@ const highscoresComputed = computed(() => {
   return highscoresLocal
 })
 
-const playAgain = () => {
+const reset = () => {
   playing.value = false
   score.value = 0
   timeStart.value = undefined
@@ -261,6 +261,10 @@ const playAgain = () => {
   gameOver.value = false
   username.value = undefined
   pushingScore.value = false
+}
+
+const playAgain = () => {
+  reset()
   play()
 }
 
@@ -343,7 +347,7 @@ const pushScore = async () => {
     authKey.value == null
     || score.value === 0
   ) {
-    playAgain()
+    reset()
     return
   }
   pushingScore.value = true
@@ -359,7 +363,7 @@ const pushScore = async () => {
   }
   await fetch(url, requestOptions as any)
   pushingScore.value = false
-  playAgain()
+  reset()
 }
 </script>
 
