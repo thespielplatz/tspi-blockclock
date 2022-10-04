@@ -1,4 +1,4 @@
-import io from 'socket.io-client'
+import io, { type Client } from 'socket.io-client'
 
 type options = {
   url: string
@@ -12,8 +12,8 @@ export default class SocketGames {
   screenId: string
   onConnect: (data: unknown) => void
   onError: (error: unknown) => void
-  socket: io
-  callbacks: Record<string, callback[]>
+  socket: Client
+  callbacks: Record<string, CallableFunction[]>
 
   constructor(options: options) {
     this.url = options.url
@@ -25,9 +25,9 @@ export default class SocketGames {
       'screen-disconnected': []
     }
 
-    this.socket.on('connect_error', (error) => this.onError(error))
-    this.socket.on('connect_timeout', (error) => this.onError(error))
-    this.socket.emit('join-screen', this.screenId, (data) => {
+    this.socket.on('connect_error', (error: unknown) => this.onError(error))
+    this.socket.on('connect_timeout', (error: unknown) => this.onError(error))
+    this.socket.emit('join-screen', this.screenId, (data: any) => {
       if (data.error) {
         this.onError(data.error)
         return
@@ -37,7 +37,7 @@ export default class SocketGames {
         this.callbacks['screen-disconnected'].forEach((callback) => callback())
       })
 
-      this.socket.on('screen-event', (eventWrapper, socketCallback) => {
+      this.socket.on('screen-event', (eventWrapper: any, socketCallback: CallableFunction) => {
         const { event, data } = eventWrapper
         if (!this.callbacks[event]) {
           return
@@ -49,7 +49,7 @@ export default class SocketGames {
     })
   }
 
-  on(event: string, callback: callback) {
+  on(event: string, callback: CallableFunction) {
     if (typeof callback !== 'function') {
       return this
     }
@@ -60,7 +60,7 @@ export default class SocketGames {
     return this
   }
 
-  emit(event: string, data?: unknown, callback?: callback) {
+  emit(event: string, data?: unknown, callback?: CallableFunction) {
     let wrapper = {
       event,
       data,

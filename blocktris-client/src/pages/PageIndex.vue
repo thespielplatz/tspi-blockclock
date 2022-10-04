@@ -13,7 +13,7 @@
     <p v-if="authKey != null">Authenticated via LNURL-auth</p>
     <p v-else-if="playingAsGuest">Playing as guest</p>
     <div
-      v-if="!playing"
+      v-if="connected && !playing"
       class="basis-0 grow overflow-y-scroll m-5"
     >
       <table class="w-full table-fixed">
@@ -31,7 +31,10 @@
     <div v-if="connecting">
       <p>by <a href="https://satoshiengineering.com" target="_blank">Satoshi Engineering</a></p>
     </div>
-    <div v-else-if="!connected">
+    <div
+      v-else-if="!connected"
+      class="m-5"
+    >
       <p>Blockclock offline :-(</p>
     </div>
     <div
