@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-stretch text-center min-h-screen bg-grey text-white">
+  <div class="h-full overflow-y-auto flex flex-col items-stretch text-center bg-grey text-white">
     <HeadlineDefault
       class="pt-3"
       level="h1"
@@ -140,19 +140,23 @@
       </div>
       <button
         class="[grid-area:turn] bg-controls border-4 border-grey font-bold text-4xl text-controls-text"
-        @click="turn()"
+        @click.prevent="turn()"
+        @selectstart.prevent
       >TURN</button>
       <button
         class="[grid-area:left] bg-controls border-4 border-grey font-bold text-4xl text-controls-text"
-        @click="left()"
+        @click.prevent="left()"
+        @selectstart.prevent
       >LEFT</button>
       <button
         class="[grid-area:right] bg-controls border-4 border-grey font-bold text-4xl text-controls-text"
-        @click="right()"
+        @click.prevent="right()"
+        @selectstart.prevent
       >RIGHT</button>
       <button
         class="[grid-area:down] bg-controls border-4 border-grey font-bold text-4xl text-controls-text"
-        @click="down()"
+        @click.prevent="down()"
+        @selectstart.prevent
       >DOWN</button>
     </div>
     <div
