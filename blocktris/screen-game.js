@@ -14,6 +14,7 @@ class GameScreen extends Screen {
 
     tetris.setOnScoreChange(this.onScoreChange.bind(this))
     tetris.setOnGameOver(this.onGameOver.bind(this))
+    tetris.setOnNextPiece(this.onNextPiece.bind(this))
 
     sg.on('turn', (data, controllerId) => {
       if (self.controllerId !== controllerId) return
@@ -51,6 +52,10 @@ class GameScreen extends Screen {
     tetris.update(1.0 / fps)
     this.display.fill(0)
     tetris.draw(this.setPixel.bind(this))
+  }
+
+  onNextPiece(type, color) {
+    this.sg.emit('next-piece', { 'type': type, 'color': color }, this.controllerId)
   }
 
   onScoreChange(score) {
