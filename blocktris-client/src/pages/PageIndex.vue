@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col place-items-center text-center min-h-screen bg-grey text-white">
+  <div class="flex flex-col items-stretch text-center min-h-screen bg-grey text-white">
     <HeadlineDefault
       class="pt-3"
       level="h1"
@@ -12,14 +12,22 @@
     </HeadlineDefault>
     <p v-if="authKey != null">Authenticated via LNURL-auth</p>
     <p v-else-if="playingAsGuest">Playing as guest</p>
-    <ul class="h-32 overflow-y-scroll mt-3">
-      <li
-        v-for="(score, index) in highscores"
-        :class="{ 'text-purple': score.key === authKey }"
-      >
-        {{ score.score }} {{ score.name }}
-      </li>
-    </ul>
+    <div
+      v-if="!playing"
+      class="basis-0 grow overflow-y-scroll m-5"
+    >
+      <table class="w-full table-fixed">
+        <tr
+          v-for="(score, index) in highscoresComputed"
+          class="border-b-2 last:border-none border-white"
+          :class="{ 'font-bold': authKey != null && score.key === authKey }"
+        >
+          <td class="w-6">{{ index + 1 }}.</td>
+          <td class="w-16 px-2 text-right">{{ score.score }}</td>
+          <td class="px-2 text-left">{{ score.name }}<span v-if="authKey != null && score.key === authKey"> ⚡</span></td>
+        </tr>
+      </table>
+    </div>
     <div v-if="connecting">
       <p>by <a href="https://satoshiengineering.com" target="_blank">Satoshi Engineering</a></p>
     </div>
@@ -28,16 +36,16 @@
     </div>
     <div
       v-else-if="authKey == null && !playingAsGuest"
-      class="flex-1 flex flex-col justify-center place-items-center"
+      class="flex flex-col justify-center place-items-center m-5"
     >
       <a
         v-if="lnurlEncoded != null && !authenticating"
-        class="cta block mb-16 py-3 px-5 rounded-full font-bold"
+        class="cta block mb-12 py-3 px-5 rounded-full font-bold"
         :href="`lightning:${lnurlEncoded}`"
       >Open wallet to authenticate</a>
       <button
         v-else-if="lnurlEncoded == null"
-        class="cta block mb-16 py-3 px-5 rounded-full font-bold"
+        class="cta block mb-12 py-3 px-5 rounded-full font-bold"
         :disabled="authenticating"
         @click="createLnurlAuth()"
       >Login via LNURL-auth</button>
@@ -94,7 +102,7 @@
           :disabled="pushingScore"
         >
         <button
-          class="cta mb-16 py-3 px-5 rounded-full font-bold"
+          class="cta mb-12 py-3 px-5 rounded-full font-bold"
           :disabled="pushingScore"
           @click="pushScore"
         >Push my score</button>
@@ -146,7 +154,7 @@
     </div>
     <div
       v-else
-      class="flex-1 grid place-items-center"
+      class="m-5 grid place-items-center"
     >
       <button
         class="cta py-3 px-5 rounded-full font-bold"
@@ -158,7 +166,7 @@
 
 <script setup lang="ts">
 import axios from 'axios'
-import { onBeforeMount, ref } from 'vue'
+import { computed, onBeforeMount, ref } from 'vue'
 
 import HeadlineDefault from '@/components/typography/HeadlineDefault.vue'
 import SocketGames from '@/modules/SocketGames'
@@ -228,7 +236,15 @@ const timeElapsed = ref<string>()
 const gameOver = ref(false)
 const username = ref<string>()
 const pushingScore = ref(false)
-const highscores = ref<{ key: string, name: string, score: number }[]>([])
+const highscores = ref<{ key?: string, name?: string, score?: number }[]>([])
+
+const highscoresComputed = computed(() => {
+  const highscoresLocal = [...highscores.value]
+  for (let i = highscores.value.length; i < 25; i += 1) {
+    highscoresLocal.push({})
+  }
+  return highscoresLocal
+})
 
 const playAgain = () => {
   playing.value = false
