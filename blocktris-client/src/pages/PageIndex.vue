@@ -6,7 +6,7 @@
     >
       <TetrisPiece
         v-if="nextPiece != null && !playing"
-        class="inline-block w-6 mt-[-8px]"
+        class="inline-block w-6 mt-[-6px]"
         :piece="nextPiece"
       />
       <img
@@ -188,7 +188,7 @@ import { computed, onBeforeMount, ref } from 'vue'
 import HeadlineDefault from '@/components/typography/HeadlineDefault.vue'
 import TetrisPiece from '@/components/TetrisPiece.vue'
 import SocketGames from '@/modules/SocketGames'
-import { BACKEND_ORIGIN } from '@/constants'
+import { BACKEND_ORIGIN, SCREEN_ID } from '@/constants'
 
 /////
 // AUTH
@@ -285,7 +285,7 @@ let socketGames: SocketGames
 onBeforeMount(() => {
   socketGames = new SocketGames({
     url: BACKEND_ORIGIN,
-    screenId: 'tspi-blockclock',
+    screenId: SCREEN_ID,
     onConnect(data) {
       connected.value = true
       connecting.value = false
