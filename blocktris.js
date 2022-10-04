@@ -75,6 +75,7 @@ sm.addScreen(Screen.GAME, new Game(sm, display, socketGames))
 sm.addScreen(Screen.GAME_OVER, new GameOver(sm, display, socketGames))
 
 sm.switchTo(Screen.STARTUP)
+setTimeout(() => { sm.switchTo(Screen.GAME)}, 1000)
 
 setInterval(function () {
   sm.onRender(FPS)
