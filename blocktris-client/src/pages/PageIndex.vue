@@ -12,6 +12,14 @@
     </HeadlineDefault>
     <p v-if="authKey != null">Authenticated via LNURL-auth</p>
     <p v-else-if="playingAsGuest">Playing as guest</p>
+    <ul class="h-32 overflow-y-scroll mt-3">
+      <li
+        v-for="(score, index) in highscores"
+        :class="{ 'text-purple': score.key === authKey }"
+      >
+        {{ score.score }} {{ score.name }}
+      </li>
+    </ul>
     <div v-if="connecting">
       <p>by <a href="https://satoshiengineering.com" target="_blank">Satoshi Engineering</a></p>
     </div>
@@ -301,7 +309,8 @@ const checkHighscores = async () => {
   checkingHighscores.value = true
   try {
     const response = await axios.get(`https://n8n.sate.tools/webhook/blocktris/highscores`)
-    highscores.value = response.data
+    highscores.value = response.data.list
+      .map(({ Key, Name, Score }: { Key: string, Name: string, Score: number }) => ({ key: Key, name: Name, score: Score }))
   } catch (error) {}
   checkingHighscores.value = false
 }
@@ -315,7 +324,7 @@ const pushScore = async () => {
     return
   }
   pushingScore.value = true
-  const url = `https://n8n.sate.tools/webhook/blocktris/user`
+  const url = `https://n8n.sate.tools/webhook/blocktris/score`
   const formdata = new FormData()
   formdata.append('key', authKey.value)
   formdata.append('name', (username.value == null || username.value.length === 0) ? 'Unknown' : username.value)
