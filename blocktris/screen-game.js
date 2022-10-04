@@ -35,7 +35,6 @@ class GameScreen extends Screen {
 
   onEnter(options) {
     this.key = options.key
-    this.name = options.name
     this.controllerId = options.controllerId
 
     this.display.fill(0)

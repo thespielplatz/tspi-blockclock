@@ -6,15 +6,18 @@ class ReadyScreen extends Screen {
 
     this.sg = sg
 
-    sg.on('play', this.onReadyMessage.bind(this))
+    sg.on('play', this.onPlayerPlay.bind(this))
   }
 
-  onReadyMessage({ key, name }, controllerId) {
-    if (!this.isActive) return
+  onPlayerPlay({ key, name }, controllerId) {
+    // Screen not visible
+    if (!this.isActive) {
+      this.sg.emit('not-ready', null, controllerId)
+      return
+    }
 
     this.sg.emit('start', null, controllerId)
-
-    this.sm.switchTo(Screen.GAME, { controllerId, key, name })
+    this.sm.switchTo(Screen.GAME, { controllerId, key })
   }
 
   onEnter(options) {
