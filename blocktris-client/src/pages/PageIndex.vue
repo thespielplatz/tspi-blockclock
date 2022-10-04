@@ -4,7 +4,13 @@
       class="pt-3"
       level="h1"
     >
+      <TetrisPiece
+        v-if="nextPiece != null"
+        class="inline-block w-6 mt-[-8px]"
+        :piece="nextPiece"
+      />
       <img
+        v-else
         class="inline-block w-6 mt-[-8px]"
         src="@/assets/img/tetris.png"
       />
@@ -120,7 +126,7 @@
       class="flex-1 game-grid grid w-full"
       v-else-if="playing"
     >
-      <div class="[grid-area:header] pt-5">
+      <div class="[grid-area:header] py-5">
         <HeadlineDefault
           level="h2"
         >
@@ -137,6 +143,10 @@
           src="@/assets/img/trophy.png"
         /> {{ score }}
         </HeadlineDefault>
+        <TetrisPiece
+          class="inline-block w-16"
+          :piece="nextPiece"
+        />
       </div>
       <button
         class="[grid-area:turn] bg-controls border-4 border-grey font-bold text-4xl text-controls-text"
@@ -176,6 +186,7 @@ import axios from 'axios'
 import { computed, onBeforeMount, ref } from 'vue'
 
 import HeadlineDefault from '@/components/typography/HeadlineDefault.vue'
+import TetrisPiece from '@/components/TetrisPiece.vue'
 import SocketGames from '@/modules/SocketGames'
 import { BACKEND_ORIGIN } from '@/constants'
 
@@ -237,6 +248,7 @@ const playAsGuest = () => {
 const connecting = ref(true)
 const connected = ref(false)
 const playing = ref(false)
+const nextPiece = ref<number>()
 const score = ref(0)
 const timeStart = ref<number>()
 const timeElapsed = ref<string>()
@@ -261,6 +273,7 @@ const reset = () => {
   gameOver.value = false
   username.value = undefined
   pushingScore.value = false
+  checkHighscores()
 }
 
 const playAgain = () => {
@@ -292,15 +305,20 @@ onBeforeMount(() => {
     score.value = scoreLocal
   })
   socketGames.on('game-over', ({score: scoreLocal}: { score: number }) => {
-    score.value = scoreLocal
-    gameOver.value = true
+    nextPiece.value = undefined
+    if (playing.value) {
+      score.value = scoreLocal
+      gameOver.value = true
+    }
+  })
+  socketGames.on('next-piece', ({ type }: { type: number }) => {
+    nextPiece.value = type
   })
 
   checkHighscores()
 })
 
 const play = () => {
-  checkHighscores()
   socketGames.emit('play', { key: authKey.value, name: username.value })
 }
 const turn = () => {
@@ -370,7 +388,7 @@ const pushScore = async () => {
 <style>
 .game-grid {
   grid-template-columns: 50% 50%;
-  grid-template-rows: 30% 2fr 3fr 2fr;
+  grid-template-rows: auto 2fr 3fr 2fr;
   grid-template-areas: "header header" "turn turn" "left right" "down down";
 }
 
