@@ -59,11 +59,11 @@ class GameScreen extends Screen {
   }
 
   onScoreChange(score) {
-    this.sg.emit('game-update', { 'score': score }, this.controllerId)
+    this.sg.broadcast('game-update', { 'score': score })
   }
 
   onGameOver(score) {
-    this.sg.emit('game-over', { 'score': score }, this.controllerId)
+    this.sg.broadcast('game-over', { 'score': score })
     this.sm.switchTo(Screen.GAME_OVER, { controllerId: this.controllerId})
   }
 

@@ -23,6 +23,8 @@ class ReadyScreen extends Screen {
   onEnter(options) {
     this.display.fill(0x000000)
     this.step = 0
+
+    this.sg.broadcast('ready')
   }
 
   onRender(fps) {

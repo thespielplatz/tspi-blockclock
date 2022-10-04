@@ -45,7 +45,7 @@ display.init(WIDTH, HEIGHT)
 display.setColors(0xFf0000, display.NOT_SET)
 
 // ------------ socket.games connection
-const SCREEN_ID = 'tspi-blockclock'
+const SCREEN_ID = process.env.SCREEN_ID || 'tspi-blockclock'
 const socketGames = new SocketGames({
   url: process.env.SOCKET_API,
   screenId: SCREEN_ID,
