@@ -10,7 +10,7 @@
       />
       BLOCKTRIS
     </HeadlineDefault>
-    <p v-if="username != null">Playing as {{ username }}</p>
+    <p v-if="authKey != null">Authenticated via LNURL-auth</p>
     <p v-else-if="playingAsGuest">Playing as guest</p>
     <div v-if="connecting">
       <p>by <a href="https://satoshiengineering.com" target="_blank">Satoshi Engineering</a></p>
@@ -19,48 +19,82 @@
       <p>Blockclock offline :-(</p>
     </div>
     <div
-      v-else-if="authKey == null && lnurlEncoded != null"
-      class="flex-1 grid place-items-center"
+      v-else-if="authKey == null && !playingAsGuest"
+      class="flex-1 flex flex-col justify-center place-items-center"
     >
       <a
-        v-if="!authenticating"
-        class="cta py-3 px-5 rounded-full font-bold"
+        v-if="lnurlEncoded != null && !authenticating"
+        class="cta block mb-16 py-3 px-5 rounded-full font-bold"
         :href="`lightning:${lnurlEncoded}`"
       >Open wallet to authenticate</a>
-    </div>
-    <div
-      v-else-if="authKey == null"
-      class="flex-1 grid place-items-center"
-    >
       <button
-        class="cta py-3 px-5 rounded-full font-bold"
+        v-else-if="lnurlEncoded == null"
+        class="cta block mb-16 py-3 px-5 rounded-full font-bold"
+        :disabled="authenticating"
         @click="createLnurlAuth()"
-        @disabled="authenticating"
       >Login via LNURL-auth</button>
+      <span class="block mb-3">OR</span>
+      <button
+        class="py-3 px-5 rounded-full bg-purple font-bold"
+        @click="playAsGuest"
+      >Play as guest</button>
     </div>
     <div
-      v-else-if="username == null && !playingAsGuest"
-      class="flex-1 grid place-items-center p-5"
+      v-else-if="gameOver"
+      class="flex-1 gameover-grid grid w-full"
     >
-      <p v-if="checkingUsername || settingUsername">Loading ...</p>
-      <div v-else>
+      <div class="[grid-area:header] pt-5">
+        <HeadlineDefault
+          level="h2"
+        >
+        <img
+          class="inline-block w-6 mt-[-8px]"
+          src="@/assets/img/clock.png"
+        /> {{ timeElapsed }}
+        </HeadlineDefault>
+        <HeadlineDefault
+          level="h2"
+        >
+        <img
+          class="inline-block w-6 mt-[-6px]"
+          src="@/assets/img/trophy.png"
+        /> {{ score }}
+        </HeadlineDefault>
+      </div>
+      <div
+        v-if="playingAsGuest"
+        class="[grid-area:play-again]"
+      >
+        <button
+          class="cta py-3 px-5 rounded-full font-bold"
+          @click="playAgain"
+        >Play again</button>
+      </div>
+      <p
+        v-else-if="pushingScore"
+        class="[grid-area:play-again]"
+      >Loading ...</p>
+      <div
+        v-else
+        class="[grid-area:play-again] p-3"
+      >
         <input
-          v-model="newUsername"
+          v-model="username"
           type="text"
           class="w-full border mb-3 px-3 py-2 focus:outline-none text-black"
           placeholder="Your name"
-          :disabled="settingUsername"
+          :disabled="pushingScore"
         >
         <button
           class="cta mb-16 py-3 px-5 rounded-full font-bold"
-          :disabled="settingUsername"
-          @click="setUsername"
-        >Set my name</button>
+          :disabled="pushingScore"
+          @click="pushScore"
+        >Push my score</button>
         <span class="block mb-3">OR</span>
         <button
-          class="py-3 px-5 rounded-full bg-purple font-bold"
-          @click="playAsGuest"
-        >Play as guest</button>
+        class="py-3 px-5 rounded-full bg-purple font-bold"
+          @click="playAgain"
+        >Play again</button>
       </div>
     </div>
     <div
@@ -85,32 +119,19 @@
         /> {{ score }}
         </HeadlineDefault>
       </div>
-      <div
-        v-if="gameOver"
-        class="[grid-area:turn]"
-      >
-        <button
-          class="cta mb-16 py-3 px-5 rounded-full font-bold"
-          @click="playAgain"
-        >Play again</button>
-      </div>
       <button
-        v-if="!gameOver"
         class="[grid-area:turn] bg-controls border-4 border-grey font-bold text-4xl text-controls-text"
         @click="turn()"
       >TURN</button>
       <button
-        v-if="!gameOver"
         class="[grid-area:left] bg-controls border-4 border-grey font-bold text-4xl text-controls-text"
         @click="left()"
       >LEFT</button>
       <button
-        v-if="!gameOver"
         class="[grid-area:right] bg-controls border-4 border-grey font-bold text-4xl text-controls-text"
         @click="right()"
       >RIGHT</button>
       <button
-        v-if="!gameOver"
         class="[grid-area:down] bg-controls border-4 border-grey font-bold text-4xl text-controls-text"
         @click="down()"
       >DOWN</button>
@@ -141,10 +162,7 @@ const authenticating = ref(false)
 const lnurlHash = ref<string>()
 const lnurlEncoded = ref<string>()
 const authKey = ref<string>()
-const checkingUsername = ref(false)
-const username = ref<string>()
-const newUsername = ref<string>()
-const settingUsername = ref(false)
+const checkingHighscores = ref(false)
 const playingAsGuest = ref(false)
 
 const resetAuth = () => {
@@ -152,10 +170,7 @@ const resetAuth = () => {
   lnurlHash.value = undefined
   lnurlEncoded.value = undefined
   authKey.value = undefined
-  checkingUsername.value = false
-  username.value = undefined
-  newUsername.value = undefined
-  settingUsername.value = false
+  checkingHighscores.value = false
   playingAsGuest.value = false
 }
 
@@ -183,45 +198,12 @@ onBeforeMount(() => {
       if (response.data.status === 'success') {
         authKey.value = response.data.data
         authenticating.value = false
-        checkUsername()
         return
       }
     } catch (error) {}
     resetAuth()
   })
 })
-
-const checkUsername = async () => {
-  checkingUsername.value = true
-  try {
-    const response = await axios.get(`https://n8n.sate.tools/webhook/45c135b7-b708-44ca-86cd-e057834b0a20/blocktris/user/${authKey.value}`)
-    username.value = response.data.Name
-  } catch (error) {}
-  checkingUsername.value = false
-}
-
-const setUsername = async () => {
-  if (
-    authKey.value == null
-    || newUsername.value == null
-    || newUsername.value.length === 0
-  ) {
-    return
-  }
-  settingUsername.value = true
-  const url = `https://n8n.sate.tools/webhook/blocktris/user`
-  const formdata = new FormData()
-  formdata.append('key', authKey.value)
-  formdata.append('name', newUsername.value)
-  const requestOptions = {
-    method: 'POST',
-    body: formdata,
-    redirect: 'follow',
-  }
-  await fetch(url, requestOptions as any)
-  username.value = newUsername.value
-  settingUsername.value = false
-}
 
 const playAsGuest = () => {
   playingAsGuest.value = true
@@ -236,6 +218,20 @@ const score = ref(0)
 const timeStart = ref<number>()
 const timeElapsed = ref<string>()
 const gameOver = ref(false)
+const username = ref<string>()
+const pushingScore = ref(false)
+const highscores = ref<{ key: string, name: string, score: number }[]>([])
+
+const playAgain = () => {
+  playing.value = false
+  score.value = 0
+  timeStart.value = undefined
+  timeElapsed.value = undefined
+  gameOver.value = false
+  username.value = undefined
+  pushingScore.value = false
+  play()
+}
 
 let socketGames: SocketGames
 onBeforeMount(() => {
@@ -264,9 +260,12 @@ onBeforeMount(() => {
     score.value = scoreLocal
     gameOver.value = true
   })
+
+  checkHighscores()
 })
 
 const play = () => {
+  checkHighscores()
   socketGames.emit('play', { key: authKey.value, name: username.value })
 }
 const turn = () => {
@@ -298,13 +297,37 @@ const updateTimer = () => {
 }
 updateTimer()
 
-const playAgain = () => {
-  playing.value = false
-  score.value = 0
-  timeStart.value = undefined
-  timeElapsed.value = undefined
-  gameOver.value = false
-  play()
+const checkHighscores = async () => {
+  checkingHighscores.value = true
+  try {
+    const response = await axios.get(`https://n8n.sate.tools/webhook/blocktris/highscores`)
+    highscores.value = response.data
+  } catch (error) {}
+  checkingHighscores.value = false
+}
+
+const pushScore = async () => {
+  if (
+    authKey.value == null
+    || score.value === 0
+  ) {
+    playAgain()
+    return
+  }
+  pushingScore.value = true
+  const url = `https://n8n.sate.tools/webhook/blocktris/user`
+  const formdata = new FormData()
+  formdata.append('key', authKey.value)
+  formdata.append('name', (username.value == null || username.value.length === 0) ? 'Unknown' : username.value)
+  formdata.append('score', String(score.value))
+  const requestOptions = {
+    method: 'POST',
+    body: formdata,
+    redirect: 'follow',
+  }
+  await fetch(url, requestOptions as any)
+  pushingScore.value = false
+  playAgain()
 }
 </script>
 
@@ -313,6 +336,11 @@ const playAgain = () => {
   grid-template-columns: 50% 50%;
   grid-template-rows: 30% 2fr 3fr 2fr;
   grid-template-areas: "header header" "turn turn" "left right" "down down";
+}
+
+.gameover-grid {
+  grid-template-rows: 30% auto;
+  grid-template-areas: "header" "play-again";
 }
 
 .cta {
