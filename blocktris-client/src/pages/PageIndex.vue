@@ -19,7 +19,7 @@
     <p v-if="authKey != null">Authenticated via LNURL-auth</p>
     <p v-else-if="playingAsGuest">Playing as guest</p>
     <div
-      v-if="connected && !playing"
+      v-if="!playing"
       class="basis-0 grow overflow-y-scroll m-5"
     >
       <table class="w-full table-fixed">
@@ -38,28 +38,26 @@
       <p>by <a href="https://satoshiengineering.com" target="_blank">Satoshi Engineering</a></p>
     </div>
     <div
-      v-else-if="!connected"
-      class="m-5"
-    >
-      <p>Blockclock offline :-(</p>
-    </div>
-    <div
       v-else-if="authKey == null && !playingAsGuest"
       class="flex flex-col justify-center place-items-center m-5"
     >
       <a
         v-if="lnurlEncoded != null && !authenticating"
-        class="cta block mb-12 py-3 px-5 rounded-full font-bold"
+        class="cta block py-3 px-5 rounded-full font-bold"
         :href="`lightning:${lnurlEncoded}`"
       >Open wallet to authenticate</a>
       <button
         v-else-if="lnurlEncoded == null"
-        class="cta block mb-12 py-3 px-5 rounded-full font-bold"
+        class="cta block py-3 px-5 rounded-full font-bold"
         :disabled="authenticating"
         @click="createLnurlAuth()"
       >Login via LNURL-auth</button>
-      <span class="block mb-3">OR</span>
+      <span
+        v-if="connected"
+        class="block mt-12 mb-3"
+      >OR</span>
       <button
+        v-if="connected"
         class="py-3 px-5 rounded-full bg-purple font-bold"
         @click="playAsGuest"
       >Play as guest</button>
@@ -174,9 +172,16 @@
       class="m-5 grid place-items-center"
     >
       <button
+        v-if="connected"
         class="cta py-3 px-5 rounded-full font-bold"
         @click="play()"
       >Play</button>
+    </div>
+    <div
+      v-if="!connecting && !connected"
+      class="m-12"
+    >
+      <p>Blockclock offline :-(</p>
     </div>
   </div>
 </template>
