@@ -50,7 +50,7 @@ class GameScreen extends Screen {
     if (!this.isActive) return
 
     tetris.update(1.0 / fps)
-    this.display.fill(0)
+    this.display.fill(0x202020)
     tetris.draw(this.setPixel.bind(this))
   }
 
