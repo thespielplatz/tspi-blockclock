@@ -29,7 +29,7 @@ class ReadyScreen extends Screen {
 
   onRender(fps) {
     this.step += 1.0 / fps
-    const brightness = Math.min(this.step * 50, 0xFF)
+    const brightness = Math.min(this.step * 0.25, 1) * 0xFF
 
     this.display.fill(0x000000)
 

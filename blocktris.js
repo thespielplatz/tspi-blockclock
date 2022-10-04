@@ -39,7 +39,7 @@ process.on('SIGINT', function () {
 
 // ------------ Renderer and Display
 
-render.init(NUM_LEDS, 50, WIDTH)
+render.init(NUM_LEDS, 150, WIDTH)
 
 display.init(WIDTH, HEIGHT)
 display.setColors(0xFf0000, display.NOT_SET)
@@ -77,9 +77,16 @@ sm.addScreen(Screen.GAME_OVER, new GameOver(sm, display, socketGames))
 sm.switchTo(Screen.STARTUP)
 //setTimeout(() => { sm.switchTo(Screen.GAME)}, 1000)
 
+let inFrame = false
 setInterval(function () {
+  if (inFrame) {
+    console.log('Frameskip')
+    return
+  }
+  inFrame = true
   sm.onRender(FPS)
   render.render(display.getPixelData())
+  inFrame = false
 }, 1000 / FPS)
 
 
