@@ -57,7 +57,7 @@ const socketGames = new SocketGames({
       return
     }
 
-    sm.switchTo(Ready.NAME)
+    sm.switchTo(Screen.READY)
   },
   onError: (error) => {
     console.error('SocketGames: onError', { error })
@@ -66,7 +66,6 @@ const socketGames = new SocketGames({
   },
 })
 
-//const socketGames = { on: () => {}, emit: () => {} }
 // ------------ Main State Machine
 
 sm = new StateMachine.StateMachine()

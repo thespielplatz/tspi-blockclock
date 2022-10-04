@@ -19,7 +19,16 @@ class ReadyScreen extends Screen {
 
   onEnter(options) {
     this.display.fill(0x000000)
-    this.display.setColors(0xFFFFFF)
+    this.step = 0
+  }
+
+  onRender(fps) {
+    this.step += 1.0 / fps
+    const brightness = Math.min(this.step * 50, 0xFF)
+
+    this.display.fill(0x000000)
+
+    this.display.setColors((brightness << 16) + (brightness << 8) + brightness)
     this.display.writeLine('Tetris', 7, 1, true)
   }
 }

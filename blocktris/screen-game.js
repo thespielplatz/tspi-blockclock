@@ -31,8 +31,6 @@ class GameScreen extends Screen {
       if (self.controllerId !== controllerId) return
       tetris.actionDown()
     })
-
-    setInterval(() => { tetris.actionDown() }, 500)
   }
 
   onEnter(options) {
@@ -62,7 +60,7 @@ class GameScreen extends Screen {
 
   onGameOver(score) {
     this.sg.emit('game-over', { 'score': score }, this.controllerId)
-    this.sm.switchTo(Screen.GAME_OVERE, { controllerId: this.controllerId})
+    this.sm.switchTo(Screen.GAME_OVER, { controllerId: this.controllerId})
   }
 
   setPixel(x, y, c) {
