@@ -48,6 +48,9 @@ class GameScreen extends Screen {
 
     this.display.fill(0)
     tetris.start()
+
+    this.preAnimation = true
+    this.startPreanimation()
   }
 
   onLeave() {
@@ -66,11 +69,43 @@ class GameScreen extends Screen {
     }, 2000)
   }
 
+  startPreanimation() {
+    const offX = 7
+    this.display.setColors(0xFFFFFF)
+    this.renderBackground()
+
+    this.display.writeLine('ready?', offX, 1, true)
+
+    const self = this
+
+    setTimeout(() => {
+      self.renderBackground()
+      self.display.writeChar(offX, 1 , '3', true)
+    }, 2000)
+
+    setTimeout(() => {
+      self.renderBackground()
+      self.display.writeChar(offX, 1 , '2', true)
+    }, 3000)
+
+    setTimeout(() => {
+      self.renderBackground()
+      self.display.writeChar(offX, 1 , '1', true)
+    }, 4000)
+
+    setTimeout(() => {
+      self.preAnimation = false
+    }, 5000)
+  }
+
   onRender(fps) {
     if (!this.isActive) return
     if (this.controllerLost) return
 
-    tetris.update(1.0 / fps)
+    if (!this.preAnimation) this.onRenderGame(fps)
+  }
+
+  renderBackground() {
     this.display.fill(0x202020)
     for (let i = 0; i < 5; ++i) this.display.setPixel(5, i, 0xA0A0A0)
     for (let i = 0; i < 25; ++i) this.display.setPixel(i % 5, Math.floor(i / 5), 0x000000)
@@ -84,7 +119,11 @@ class GameScreen extends Screen {
         }
       }
     }
+  }
 
+  onRenderGame(fps) {
+    tetris.update(1.0 / fps)
+    this.renderBackground()
     tetris.draw(this.setPixel.bind(this))
   }
 
