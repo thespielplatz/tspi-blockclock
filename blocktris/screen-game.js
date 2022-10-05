@@ -32,11 +32,18 @@ class GameScreen extends Screen {
       if (self.controllerId !== controllerId) return
       tetris.actionDown()
     })
+
+    sg.on('controller-disconnected', (controllerId) => {
+      if (self.controllerId !== controllerId) return
+      self.onControllerLost()
+    })
   }
 
   onEnter(options) {
     this.key = options.key
     this.controllerId = options.controllerId
+    this.controllerLost = false
+
     this.nextPiece = null
 
     this.display.fill(0)
@@ -47,8 +54,21 @@ class GameScreen extends Screen {
     this.controllerId = undefined
   }
 
+  onControllerLost() {
+    this.controllerLost = true
+    this.display.fill(0xF00000)
+    this.display.setColors(0xFFFFFF)
+    this.display.writeLine('abort :(', 1, 1, true)
+
+    const self = this
+    setTimeout(() => {
+      self.sm.switchTo(Screen.READY)
+    }, 2000)
+  }
+
   onRender(fps) {
     if (!this.isActive) return
+    if (this.controllerLost) return
 
     tetris.update(1.0 / fps)
     this.display.fill(0x202020)
