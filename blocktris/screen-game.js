@@ -10,7 +10,7 @@ class GameScreen extends Screen {
 
     let self = this
 
-    tetris = new Tetris(display.getHeight(), display.getWidth())
+    tetris = new Tetris(display.getHeight(), display.getWidth() - 7)
 
     tetris.setOnScoreChange(this.onScoreChange.bind(this))
     tetris.setOnGameOver(this.onGameOver.bind(this))
@@ -37,6 +37,7 @@ class GameScreen extends Screen {
   onEnter(options) {
     this.key = options.key
     this.controllerId = options.controllerId
+    this.nextPiece = null
 
     this.display.fill(0)
     tetris.start()
@@ -51,11 +52,28 @@ class GameScreen extends Screen {
 
     tetris.update(1.0 / fps)
     this.display.fill(0x202020)
+    this.display.setPixel(5, 0, 0xA0A0A0)
+    this.display.setPixel(5, 1, 0xA0A0A0)
+    this.display.setPixel(5, 2, 0xA0A0A0)
+    this.display.setPixel(5, 3, 0xA0A0A0)
+    this.display.setPixel(5, 4, 0xA0A0A0)
+
+    if (this.nextPiece !== null) {
+      for (let x = 0; x < this.nextPiece.form[0].length; ++x) {
+        for (let y = 0; y < this.nextPiece.form.length; ++y) {
+          if (this.nextPiece.form[y][x] == 1) {
+            this.display.setPixel(1 + y, this.display.getHeight() - 2 - x, this.nextPiece.color)
+          }
+        }
+      }
+    }
+
     tetris.draw(this.setPixel.bind(this))
   }
 
-  onNextPiece(type, color) {
-    this.sg.broadcast('next-piece', { 'type': type, 'color': color }, this.controllerId)
+  onNextPiece(nextPiece) {
+    this.nextPiece = nextPiece
+    this.sg.broadcast('next-piece', { 'type': nextPiece.type, 'color': nextPiece.color }, this.controllerId)
   }
 
   onScoreChange(score) {
@@ -68,7 +86,7 @@ class GameScreen extends Screen {
   }
 
   setPixel(x, y, c) {
-    this.display.setPixel(y,  this.display.getHeight() - x - 1, c)
+    this.display.setPixel(y + 7,  this.display.getHeight() - x - 1, c)
   }
 }
 
