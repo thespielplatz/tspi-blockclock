@@ -52,11 +52,8 @@ class GameScreen extends Screen {
 
     tetris.update(1.0 / fps)
     this.display.fill(0x202020)
-    this.display.setPixel(5, 0, 0xA0A0A0)
-    this.display.setPixel(5, 1, 0xA0A0A0)
-    this.display.setPixel(5, 2, 0xA0A0A0)
-    this.display.setPixel(5, 3, 0xA0A0A0)
-    this.display.setPixel(5, 4, 0xA0A0A0)
+    for (let i = 0; i < 5; ++i) this.display.setPixel(5, i, 0xA0A0A0)
+    for (let i = 0; i < 25; ++i) this.display.setPixel(i % 5, Math.floor(i / 5), 0x000000)
 
     if (this.nextPiece !== null) {
       for (let x = 0; x < this.nextPiece.form[0].length; ++x) {
