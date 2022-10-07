@@ -245,7 +245,7 @@ onBeforeMount(() => {
     if (document.visibilityState !== 'visible') {
       return
     }
-    if (socketDisconnected.value) {
+    if (socketDisconnected.value || socketGamesId !== socketGames.socket.id) {
       connectToBackend()
     }
     if (
@@ -310,10 +310,10 @@ const playAgain = () => {
   play()
 }
 
-let socketHasError = ref(false)
 let socketConnected = ref(false)
 let socketDisconnected = ref(false)
 let socketGames: SocketGames
+let socketGamesId: string
 const connectToBackend = () => {
   socketGames = new SocketGames({
     url: BACKEND_ORIGIN,
@@ -325,7 +325,6 @@ const connectToBackend = () => {
     onError(error) {
       connecting.value = false
       console.error('onError', error)
-      socketHasError.value = true
     }
   })
 
@@ -347,7 +346,7 @@ const connectToBackend = () => {
   socketGames.on('next-piece', ({ type }: { type: number }) => {
     nextPiece.value = type
   })
-
+  socketGamesId = socketGames.socket.id
 }
 
 onBeforeMount(() => {
