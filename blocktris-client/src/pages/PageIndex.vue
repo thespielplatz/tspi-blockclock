@@ -242,9 +242,14 @@ const copyLnurlToClipboard = async () => {
 
 onBeforeMount(() => {
   document.addEventListener('visibilitychange', async (event) => {
+    if (document.visibilityState !== 'visible') {
+      return
+    }
+    if (socketDisconnected.value) {
+      connectToBackend()
+    }
     if (
-      document.visibilityState !== 'visible'
-      || lnurlHash.value == null
+      lnurlHash.value == null
       || authKey.value != null
       || authenticating.value
     ) {
@@ -305,8 +310,11 @@ const playAgain = () => {
   play()
 }
 
+let socketHasError = ref(false)
+let socketConnected = ref(false)
+let socketDisconnected = ref(false)
 let socketGames: SocketGames
-onBeforeMount(() => {
+const connectToBackend = () => {
   socketGames = new SocketGames({
     url: BACKEND_ORIGIN,
     screenId: SCREEN_ID,
@@ -317,6 +325,7 @@ onBeforeMount(() => {
     onError(error) {
       connecting.value = false
       console.error('onError', error)
+      socketHasError.value = true
     }
   })
 
@@ -339,6 +348,14 @@ onBeforeMount(() => {
     nextPiece.value = type
   })
 
+}
+
+onBeforeMount(() => {
+  setInterval(() => {
+    socketConnected.value = socketGames?.socket?.connected
+    socketDisconnected.value = socketGames?.socket?.disconnected
+  }, 100)
+  connectToBackend()
   checkHighscores()
 })
 
