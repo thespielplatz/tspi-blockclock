@@ -5,6 +5,8 @@ function getRandomColor() {
   return colors[i]
 }
 
+const STEP_START = 0.05
+
 class TransactionBlock {
   constructor(size, isFull = false) {
     this.x = 0
@@ -14,6 +16,22 @@ class TransactionBlock {
     this.transactionCount = 0
 
     this.transactions = []
+
+    if (isFull) {
+      for (let i = 0; i < this.transactionMax; ++i) this.addTransaction(true)
+    }
+  }
+
+  update(step) {
+    for (let i = 0; i < this.transactions.length; ++i) {
+      let t = this.transactions[i]
+      if (t.s > 0) {
+        t.s -= step
+      } else {
+        t.s = STEP_START
+        if (t.y < t.toY) t.y++
+      }
+    }
   }
 
   render(display) {
@@ -24,7 +42,7 @@ class TransactionBlock {
     }
 
     for (let i = 0; i < this.transactions.length; ++i) {
-      const t = this.transactions[i]
+      let t = this.transactions[i]
       display.setPixel(this.x + t.x, this.y + t.y, t.c)
     }
   }
@@ -32,18 +50,24 @@ class TransactionBlock {
   setTransactions(count) {
     if (count > this.transactionMax) count = this.transactionMax
     const missing = count - this.transactionCount
+
+    const self = this
     for (let i = 0; i < missing; i++) {
-      this.addTransaction()
+      setTimeout(() => {
+        self.addTransaction()
+
+      }, 250 + 250 * i)
     }
   }
 
-  addTransaction() {
+  addTransaction(skipAnimation = false) {
     if (this.transactionCount >= this.transactionMax) return
 
     const x = this.transactionCount % this.size
-    const y = (this.size - Math.floor(this.transactionCount / this.size) - 1)
+    const toY = (this.size - Math.floor(this.transactionCount / this.size) - 1)
+    const y = (skipAnimation ? toY : -1)
 
-    this.transactions.push({x, y, c: getRandomColor()})
+    this.transactions.push({x, y, toY, s: 0, c: getRandomColor()})
 
     this.transactionCount++
   }
