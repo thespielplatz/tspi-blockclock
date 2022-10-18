@@ -71,7 +71,7 @@ const nextStepMove = () => {
     pixels[i].x++
   }
 
-  if (step > width - SIZE) {
+  if (step > width) {
     step = -1
     state = ""
     if (finishedCallback != undefined) finishedCallback()

@@ -11,6 +11,10 @@ class BlockTime {
     this.vsizeChangedCallback = undefined
   }
 
+  getVSize() {
+    return this.vsize
+  }
+
   getBlockTime() {
     setTimeout(this.getBlockTime.bind(this), this.timeinterval)
 

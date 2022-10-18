@@ -30,7 +30,7 @@ process.on('SIGINT', function () {
   process.nextTick(function () { process.exit(0) })
 })
 
-render.init(NUM_LEDS, 50, WIDTH)
+render.init(NUM_LEDS, 100, WIDTH)
 
 display.init(WIDTH, HEIGHT)
 display.setColors(0xFFFFFF, display.NOT_SET)
@@ -39,20 +39,25 @@ rainbow.init(NUM_LEDS, 1.0)
 
 setInterval(function () {
   rainbow.nextStep(display)
-  blocktime.render(display)
   movingblock.render(display)
+  blocktime.render(display)
+
   render.render(display.getPixelData())
 }, 1000 / FPS)
 
 
 blocktime.start()
 
-blocktime.setNewBlockCallback(() => {
+blocktime.setNewBlockStartCallback(() => {
+  rainbow.setBrightness(0.8)
+})
+
+blocktime.setNewBlockEndCallback(() => {
   rainbow.setBrightness(0)
 
-  movingblock.start(WIDTH, HEIGHT, 25, 12)
+  movingblock.start(WIDTH, HEIGHT, 0, 12)
 
   movingblock.setFinishedCallback(() => {
-    rainbow.fadeOn()
+    //rainbow.fadeOn()
   })
 })

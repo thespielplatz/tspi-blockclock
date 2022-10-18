@@ -69,7 +69,7 @@ blocktime.start()
 blocktime.setNewBlockCallback((blocktime) => {
 })
 
-blocktime.setNewBlockCallback((vsize) => {
+blocktime.setVsizeChangedCallback((vsize) => {
   let newSize = Math.min(TRANSACTION_MAX, 1 + Math.floor(TRANSACTION_MAX * vsize / (1024 * 1024)))
   blocks[0].setTransactions(newSize)
 })

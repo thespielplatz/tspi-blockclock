@@ -2,9 +2,10 @@ const axios = require('axios')
 
 let blocktime = 1
 let text = ""
-const newBlockText = 'new block'
+const newBlockText = '!! new block !!'
 
-let newBlockCallback = undefined
+let newBlockStartCallback = undefined
+let newBlockEndCallback = undefined
 let textColor = 0xFFFFFF
 
 const getBlockTime = () => {
@@ -37,6 +38,8 @@ const render = function(display) {
 }
 
 const newBlock = () => {
+  if (newBlockStartCallback != undefined) newBlockStartCallback()
+
   text = newBlockText
   setTimeout(() => { textColor = 0xFFFFFF }, 300)
   setTimeout(() => { textColor = 0xB0B0B0 }, 600)
@@ -48,18 +51,22 @@ const newBlock = () => {
   setTimeout(() => { textColor = 0xB0B0B0 }, 2400)
   setTimeout(() => { textColor = 0xFFFFFF }, 2700)
   setTimeout(() => {
-    text = blocktime.toString()
+    text = '       ' + blocktime.toString()
     getBlockTime()
-    if (newBlockCallback != undefined) newBlockCallback()
+    if (newBlockEndCallback != undefined) newBlockEndCallback()
   }, 6000)
 }
 
-const setNewBlockCallback = (newCallback) => {
-  newBlockCallback = newCallback
+const setNewBlockStartCallback = (newCallback) => {
+  newBlockStartCallback = newCallback
+}
+const setNewBlockEndCallback = (newCallback) => {
+  newBlockEndCallback = newCallback
 }
 
 module.exports = {
   start,
   render,
-  setNewBlockCallback
+  setNewBlockStartCallback,
+  setNewBlockEndCallback
 }
