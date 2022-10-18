@@ -26,7 +26,7 @@ class BlockTime {
       //console.log(`Mempool VSize Change: ${response.data.vsize}`)
       self.vsize = response.data.vsize
       if (self.vsizeChangedCallback) self.vsizeChangedCallback(self.vsize)
-    })
+    }, err => { console.log(`Error: ${err}`)})
 
     axios.get('https://mempool.space/api/blocks/tip/height').then((response) => {
       if (response.data == self.blocktime) return
@@ -34,7 +34,7 @@ class BlockTime {
       console.log(`New Block: ${response.data}`)
       self.blocktime = response.data
       if (self.newBlockCallback) self.newBlockCallback(self.blocktime)
-    })
+    }, err => { console.log(`Error: ${err}`)})
   }
 
   setNewBlockCallback(callback) {

@@ -24,7 +24,7 @@ const getBlockTime = () => {
     } else {
       setTimeout(getBlockTime, 5000)
     }
-  })
+  }, err => { setTimeout(getBlockTime, 5000) })
 }
 
 const start = () => {
