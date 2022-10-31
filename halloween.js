@@ -65,7 +65,7 @@ async function animationLoop() {
   animating = true
 
   waitTime = 1000 + Math.random() * 2000
-  onTime = 50 + Math.random() * 150
+  onTime = 20 + Math.random() * 100
 
   repeat = 1 + Math.floor(Math.random() * 4)
 
