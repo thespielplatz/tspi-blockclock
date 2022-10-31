@@ -37,11 +37,10 @@ display.setColors(0xFFFFFF, display.NOT_SET)
 
 display.fill(0)
 
+const sleep = (waitTimeInMs) => new Promise(resolve => setTimeout(resolve, waitTimeInMs))
+
+/*
 const rl = readline.createInterface({input: process.stdin, output: process.stdout})
-
-const sleep = (waitTimeInMs) => new Promise(resolve => setTimeout(resolve, waitTimeInMs));
-
-
 rl.question('Press [q] to quit: ', answer)
 
 async function answer(ans) {
@@ -54,7 +53,36 @@ async function answer(ans) {
   else console.log('i will not continue')
   rl.close()
 }
+*/
+
+let waitTime = 0
+let onTime = 0
+let repeat
+
+let animating = false
+
+async function animationLoop() {
+  animating = true
+
+  waitTime = 1000 + Math.random() * 2000
+  onTime = 50 + Math.random() * 150
+
+  repeat = 1 + Math.floor(Math.random() * 4)
+
+  await sleep(waitTime)
+
+  for (let i = 0; i < repeat; i++) {
+    display.fill(0xFFFFFF)
+    await sleep(onTime)
+    display.fill(0x0)
+    await sleep(onTime)
+  }
+
+  animating = false
+}
 
 setInterval(function () {
+  if (!animating) animationLoop()
+
   render.render(display.getPixelData())
 }, 1000 / FPS)
