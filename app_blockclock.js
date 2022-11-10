@@ -4,7 +4,13 @@ require('dotenv').config()
 const WS281xRenderer = require('./lib/WS281xRenderer.js')
 const PixelDisplay = require('./lib/PixelDisplay')
 
-const Blocktime = require('./blockclock/blocktime_updater.js')
+const Blocktime = require('./blockclock/BlockTime.js')
+
+const StateMachine = require('./lib/StateMachine/StateMachine')
+const ScreenClock = require('./blockclock/ScreenClock')
+const ScreenEmpty = require('./blockclock/ScreenEmpty')
+
+const Frontend = require('./blockclock/Frontend')
 
 const FPS = process.env.DISPLAY_FPS || 60
 const WIDTH = process.env.DISPLAY_WIDTH || 50
@@ -19,13 +25,42 @@ renderer.init()
 const display = new PixelDisplay(WIDTH, HEIGHT)
 display.setColors(0xFFFFFF, PixelDisplay.NOT_SET)
 
+// ------------ Main State Machine
+
+sm = new StateMachine.StateMachine()
+const screenClock = new ScreenClock(sm, display)
+sm.addScreen(ScreenClock.NAME, screenClock)
+sm.addScreen(ScreenEmpty.NAME, new ScreenEmpty(sm, display))
+sm.switchTo(ScreenClock.NAME)
+//setTimeout(() => { sm.switchTo(Screen.GAME)}, 1000)
+
+// ------------ Frontend
+
+const frontend = new Frontend()
+
+// ------------ Blockclock
+
+const blocktime = new Blocktime()
+setTimeout(() => { blocktime.start() }, 1000)
+
+blocktime.setNewBlockCallback((blocktime) => {
+  screenClock.onMessage({ message: 'newblock', blocktime })
+})
+
+let inFrame = false
 setInterval(function () {
-  display.fill(0)
-  display.writeLine('BLOCKCLOCK', 5)
+  if (inFrame) {
+    console.log('Frameskip')
+    return
+  }
+  inFrame = true
+  sm.onRender(FPS)
   renderer.render(display.getPixelData())
+  inFrame = false
 }, 1000 / FPS)
 
 /*
+
 const TRANSACTION_MAX = HEIGHT * HEIGHT
 const Transactionblock = require('./blockclock/transactionblock.js')
 

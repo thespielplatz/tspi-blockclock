@@ -1,4 +1,4 @@
-const ScreenPrototype = require('../lib/StateMachine/StatePrototype.js')
+const ScreenPrototype = require('../lib/StateMachine/ScreenPrototype.js')
 const Screen = require('./screen')
 
 const Tetris = require('./tetris/tetris.js')
