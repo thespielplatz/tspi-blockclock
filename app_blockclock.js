@@ -11,6 +11,8 @@ const ScreenClock = require('./blockclock/ScreenClock')
 const ScreenEmpty = require('./blockclock/ScreenEmpty')
 
 const Frontend = require('./blockclock/Frontend')
+const app = require('./blockclock/app')
+const {version: VERSION} = require('./package.json')
 
 const FPS = process.env.DISPLAY_FPS || 60
 const WIDTH = process.env.DISPLAY_WIDTH || 50
@@ -37,6 +39,18 @@ sm.switchTo(ScreenClock.NAME)
 // ------------ Frontend
 
 const frontend = new Frontend()
+frontend.setActionCallback((data) => {
+  switch (data.action) {
+    case 'turnoff':
+      sm.switchTo(ScreenEmpty.NAME)
+      break;
+
+    case 'turnon':
+      sm.switchTo(ScreenClock.NAME)
+      break;
+  }
+})
+frontend.start()
 
 // ------------ Blockclock
 
@@ -44,10 +58,11 @@ const blocktime = new Blocktime()
 setTimeout(() => { blocktime.start() }, 1000)
 
 blocktime.setNewBlockCallback((blocktime) => {
-  screenClock.onMessage({ message: 'newblock', blocktime })
+  sm.sendMessage({ message: 'newblock', blocktime })
 })
 
 let inFrame = false
+
 setInterval(function () {
   if (inFrame) {
     console.log('Frameskip')

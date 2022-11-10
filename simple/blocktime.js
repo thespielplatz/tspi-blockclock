@@ -27,7 +27,7 @@ const processResponse = (response) => {
 }
 
 const getBlockTime = () => {
-  if (process.env.DEV == 1) {
+  if (process.env.DEV === 'true') {
     const response = { data : 2100 }
     processResponse(response)
     return

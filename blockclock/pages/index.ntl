@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <title>#title#</title>
+        <meta name="description" content="We make you play!">
+        <meta name="author" content="TheSpielplatz">
+
+        <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+        <link rel="manifest" href="/static/site.webmanifest">
+
+        <link href="static/lib/bulma/bulma.css" rel="stylesheet">
+        <style>
+            @font-face {
+                font-family: 'Bebas Neue';
+                src: url('/static/fonts/BebasNeue-Regular.ttf') format('truetype'); /* Chrome 4+, Firefox 3.5, Opera 10+, Safari 3—5 */
+            }
+
+            html {
+                xoverflow-y: hidden;
+                background: black;
+                color: white;
+            }
+
+            .content h1 {
+                color: white;
+                font-family: 'Bebas Neue', cursive;
+                font-size: 1rem;
+                text-shadow: 0px 1px 0px #C56200;
+            }
+
+            body {
+                background: rgb(33,37,41);
+                letter-spacing: 0.5px;
+                box-shadow: inset 0 0 5rem rgba(0, 0, 0, .5);
+                color: #D0D0D0;
+            }
+
+            .cursor::after{
+                content: "";
+                width: 3px;
+                height: 28px;
+
+                margin-bottom: 2px;
+                margin-left: 4px;
+
+                background: #F7941E;
+                -webkit-animation: blink 0.8s infinite;
+
+            }
+
+            @keyframes blink {
+                0% { opacity: 0 }
+                50% { opacity: 100% }
+                100% { opacity: 0 }
+            }
+
+            .navbar {
+                font-family: 'Bebas Neue', cursive;
+                background: transparent;
+            }
+
+            .nav-title {
+                font-family: 'Bebas Neue', cursive;
+                font-size: 1.2rem;
+                text-shadow: 0px 3px 0px #C56200;
+            }
+
+
+        </style>
+    </head>
+
+    <body>
+        <nav class="navbar">
+            <div class="navbar-brand">
+                <p class="navbar-item nav-title is-4 cursor has-text-white">#title#</p>
+            </div>
+        </nav>
+
+        <div class="content">
+            <h1 class="title">Generel</h1>
+            <button class="button is-primary" data-action="turnon">On</button>
+            <button class="button is-danger" data-action="turnoff">Off</button>
+        </div>
+
+            <!-- Hero content: will be in the middle
+            <div class="hero-body">
+                <div class="container">
+                    <p class="title has-text-white">Mode</p>
+                </div>
+            </div>
+-->
+            <!-- Hero footer: will stick at the bottom -
+            <div class="hero-foot">
+                <nav class="level">
+                    <div class="level-left">
+                        <div class="level-item pl-2">
+                            <figure class="image is-48x48">
+                                <img width="70" height="40" src="static/img/tsp_70x112.png" alt="TheSpielplatz" scale="0">
+                            </figure>
+                        </div>
+                    </div>
+                    <div class="level-right pr-4">
+                        <p class="level-item has-text-grey">Version: #version#</p>
+                    </div>
+                </nav>
+            </div>
+            -->
+        </section>
+    <script>
+        const matches = document.querySelectorAll('[data-action]')
+        matches.forEach((button) => {
+            const action = button.getAttribute('data-action')
+            button.addEventListener('click', () => {
+                var myHeaders = new Headers();
+                myHeaders.append("Content-Type", "application/json");
+
+                var raw = JSON.stringify({
+                    "action": action
+                });
+                var requestOptions = {
+                    method: 'POST',
+                    headers: myHeaders,
+                    body: raw,
+                    redirect: 'follow'
+                };
+
+                fetch("/api/action/", requestOptions)
+                  .then(response => response.text())
+                  .then(result => console.log(result))
+                  .catch(error => console.log('error', error));
+            })
+        })
+    </script>
+    </body>
+</html>
+

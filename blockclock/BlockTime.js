@@ -20,7 +20,7 @@ class BlockTime {
   getBlockTime() {
     setTimeout(this.getBlockTime.bind(this), this.timeinterval)
 
-    if (process.env.DEV == 1) {
+    if (process.env.DEV === 'true') {
       const self = this
       setTimeout(() => {
         self.processHeightResponse({ data: dev_height })
