@@ -2,7 +2,6 @@ console.info('Blocktris Starting ...')
 
 require('dotenv').config()
 const WS281xRenderer = require('./lib/WS281xRenderer.js')
-const display = require('./lib/display.js')
 const SocketGames = require('./lib/SocketGames.js')
 const StateMachine = require('./blocktris/statemachine')
 const Screen = require('./blocktris/screen-prototype.js')
@@ -10,6 +9,7 @@ const Startup = require('./blocktris/screen-startup')
 const Ready = require('./blocktris/screen-ready')
 const Game = require('./blocktris/screen-game')
 const GameOver = require('./blocktris/screen-gameover')
+const PixelDisplay = require('./lib/PixelDisplay')
 
 const FPS = process.env.DISPLAY_FPS || 60
 const WIDTH = process.env.DISPLAY_WIDTH || 50
@@ -22,8 +22,8 @@ const NUM_LEDS = WIDTH * HEIGHT
 const renderer = new WS281xRenderer(NUM_LEDS, BRIGHTNESS, WIDTH)
 renderer.init()
 
-display.init(WIDTH, HEIGHT)
-display.setColors(0xFf0000, display.NOT_SET)
+const display = new PixelDisplay(WIDTH, HEIGHT)
+display.setColors(0xFFFFFF, PixelDisplay.NOT_SET)
 
 // ------------ socket.games connection
 const SCREEN_ID = process.env.SCREEN_ID || 'tspi-blockclock'

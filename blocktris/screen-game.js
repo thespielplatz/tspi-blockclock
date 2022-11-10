@@ -1,6 +1,6 @@
 const Screen = require('./screen-prototype.js')
 
-const Tetris = require('./../lib/tetris/tetris.js')
+const Tetris = require('./tetris/tetris.js')
 let tetris
 
 class GameScreen extends Screen {

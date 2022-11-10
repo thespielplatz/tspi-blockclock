@@ -2,7 +2,7 @@ console.info('Blockclock Starting ...')
 require('dotenv').config()
 
 const WS281xRenderer = require('./lib/WS281xRenderer.js')
-const display = require('./lib/display.js')
+const PixelDisplay = require('./lib/PixelDisplay')
 
 const Blocktime = require('./blockclock/blocktime_updater.js')
 const Transactionblock = require('./blockclock/transactionblock.js')
@@ -11,15 +11,16 @@ const FPS = process.env.DISPLAY_FPS || 60
 const WIDTH = process.env.DISPLAY_WIDTH || 50
 const HEIGHT = process.env.DISPLAY_HEIGHT || 5
 const BRIGHTNESS = process.env.DISPLAY_BRIGHTNESS || 50
+const REVERTED_ROWS = process.env.DISPLAY_REVERTED_ROWS || '1,3'
 const NUM_LEDS = WIDTH * HEIGHT
 
 const TRANSACTION_MAX = HEIGHT * HEIGHT
 
-const renderer = new WS281xRenderer(NUM_LEDS, BRIGHTNESS, WIDTH)
+const renderer = new WS281xRenderer(NUM_LEDS, BRIGHTNESS, WIDTH, REVERTED_ROWS)
 renderer.init()
 
-display.init(WIDTH, HEIGHT)
-display.setColors(0xFFFFFF, display.NOT_SET)
+const display = new PixelDisplay(WIDTH, HEIGHT)
+display.setColors(0xFFFFFF, PixelDisplay.NOT_SET)
 
 const blocktime = new Blocktime()
 

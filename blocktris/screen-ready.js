@@ -1,5 +1,5 @@
 const Screen = require('./screen-prototype.js')
-const Piece = require('./../lib/tetris/piece')
+const Piece = require('.//tetris/piece')
 
 class ReadyScreen extends Screen {
   constructor(sm, display, sg) {

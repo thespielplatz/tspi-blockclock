@@ -2,7 +2,7 @@ console.info('Just Rendering Text ...')
 
 require('dotenv').config()
 const WS281xRenderer = require('./lib/WS281xRenderer.js')
-const display = require('./lib/display.js')
+const PixelDisplay = require('./lib/PixelDisplay.js')
 
 const FPS = process.env.DISPLAY_FPS || 60
 const WIDTH = process.env.DISPLAY_WIDTH || 50
@@ -14,8 +14,8 @@ const NUM_LEDS = WIDTH * HEIGHT
 const renderer = new WS281xRenderer(NUM_LEDS, BRIGHTNESS, WIDTH, REVERTED_ROWS)
 renderer.init()
 
-display.init(WIDTH, HEIGHT)
-display.setColors(0xFFFFFF, display.NOT_SET)
+const display = new PixelDisplay(WIDTH, HEIGHT)
+display.setColors(0xFFFFFF, PixelDisplay.NOT_SET)
 display.fill(0)
 
 const appArgs = process.argv.slice(2);
