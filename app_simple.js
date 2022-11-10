@@ -4,9 +4,9 @@ require('dotenv').config()
 const WS281xRenderer = require('./lib/WS281xRenderer.js')
 const display = require('./lib/display.js')
 
-const rainbow = require('./blockclock/rainbow.js')
-const blocktime = require('./blockclock/blocktime.js')
-const movingblock = require('./blockclock/movingblock.js')
+const rainbow = require('./animations/rainbow.js')
+const blocktime = require('./simple/blocktime.js')
+const movingblock = require('./simple/movingblock.js')
 
 const FPS = process.env.DISPLAY_FPS || 60
 const WIDTH = process.env.DISPLAY_WIDTH || 50

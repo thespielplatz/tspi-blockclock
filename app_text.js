@@ -19,11 +19,11 @@ display.setColors(0xFFFFFF, display.NOT_SET)
 display.fill(0)
 
 const appArgs = process.argv.slice(2);
-const text = (appArgs.length >= 1 ? appArgs[0] : "no text")
+const app_text = (appArgs.length >= 1 ? appArgs[0] : "no text")
 
 const draw = () => {
   display.fill(0)
-  display.writeLine(text, 1)
+  display.writeLine(app_text, 1)
   renderer.render(display.getPixelData())
 }
 
