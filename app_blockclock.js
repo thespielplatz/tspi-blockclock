@@ -10,6 +10,7 @@ const StateMachine = require('./lib/StateMachine/StateMachine')
 const ScreenEmpty = require('./blockclock/ScreenEmpty')
 const ScreenClock = require('./blockclock/ScreenClock')
 const ScreenNewBlock = require('./blockclock/ScreenNewBlock')
+const ScreenText = require('./blockclock/ScreenText')
 
 const Frontend = require('./blockclock/Frontend')
 const Movingblock = require('./animations/movingblock.js')
@@ -35,7 +36,8 @@ let state = {
   'newblock': {
     'rainbow': true,
     'movingblock': true
-  }
+  },
+  'isshowingtext' : false
 }
 
 // ------------ Main State Machine
@@ -45,17 +47,19 @@ const screenClock = new ScreenClock(sm, display)
 sm.addScreen(ScreenClock.NAME, screenClock)
 sm.addScreen(ScreenEmpty.NAME, new ScreenEmpty(sm, display))
 sm.addScreen(ScreenNewBlock.NAME, new ScreenNewBlock(sm, display))
+sm.addScreen(ScreenText.NAME, new ScreenText(sm, display))
 
 sm.switchTo(ScreenClock.NAME, { 'blocktime': state.blocktime })
 //setTimeout(() => { sm.switchTo(ScreenNewBlock.NAME)}, 1000)
-
 
 // ------------ Blockclock
 
 sm.setOnMessageCallback((options) => {
   switch (options.message) {
     case ScreenNewBlock.MSG_FINISHED:
-      sm.switchTo(ScreenClock.NAME, { 'blocktime': state.blocktime })
+      if (sm.getScreenName() !== ScreenNewBlock.NAME) return
+
+        sm.switchTo(ScreenClock.NAME, { 'blocktime': state.blocktime })
       if (state.newblock.movingblock) startMovingBlock()
       break;
   }
@@ -66,7 +70,13 @@ setTimeout(() => { blocktime.start() }, 1000)
 
 blocktime.setNewBlockCallback((blocktime) => {
   state.blocktime = blocktime
-  if (state.newblock.rainbow && sm.getScreenName() === ScreenClock.NAME) {
+
+  if (sm.getScreenName() !== ScreenClock.NAME) {
+    sm.sendMessage({ 'message' : 'blocktime', 'blocktime': state.blocktime })
+    return
+  }
+
+  if (state.newblock.rainbow) {
     movingblock = null
     sm.switchTo(ScreenNewBlock.NAME)
     return
@@ -76,10 +86,9 @@ blocktime.setNewBlockCallback((blocktime) => {
     startMovingBlock()
   }
 
-  sm.sendMessage({ 'message' : 'blocktime', 'blocktime': state.blocktime })
 })
 
-// ------------ Frontend
+// ------------ Actions
 
 let movingblock = null
 function startMovingBlock() {
@@ -124,6 +133,15 @@ frontend.setActionCallback((data) => {
       startMovingBlock()
       break;
 
+    case 'trigger-send-text':
+      if (sm.getScreenName() !== ScreenText.NAME) {
+        sm.switchTo(ScreenText.NAME, { 'text': data.text2display })
+        state.isshowingtext = true
+      } else {
+        sm.switchTo(ScreenClock.NAME, { 'blocktime': state.blocktime })
+        state.isshowingtext = false
+      }
+      break;
   }
 
   let actives = []
@@ -132,6 +150,7 @@ frontend.setActionCallback((data) => {
   if (actives.length <= 0) actives.push('animation-off')
 
   actives.push(state.running ? 'turnon' : 'turnoff')
+  if (state.isshowingtext) actives.push('trigger-send-text')
   return actives
 })
 frontend.start()

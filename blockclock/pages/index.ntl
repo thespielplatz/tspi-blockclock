@@ -77,6 +77,10 @@
                 border-color: transparent;
                 color: #fff;
             }
+
+            #text2display {
+                font-family: "PT Mono";
+            }
         </style>
     </head>
 
@@ -102,13 +106,13 @@
             <h1 class="title">Actions</h1>
             <button class="button" data-action="trigger-moving-block">Moving Block</button>
         </div>
-            <!-- Hero content: will be in the middle
-            <div class="hero-body">
-                <div class="container">
-                    <p class="title has-text-white">Mode</p>
-                </div>
+        <div class="content">
+            <h1 class="title">Text</h1>
+            <div class="control">
+                <input id="text2display" class="input" type="text" placeholder="Text to display">
             </div>
--->
+            <button class="button" data-action="trigger-send-text">Send Text</button>
+        </div>
             <!-- Hero footer: will stick at the bottom -
             <div class="hero-foot">
                 <nav class="level">
@@ -128,18 +132,22 @@
         </section>
     <script>
         function sendAction(action) {
-            var myHeaders = new Headers();
+            let myHeaders = new Headers();
             myHeaders.append("Content-Type", "application/json");
 
-            var raw = JSON.stringify({
-                "action": action
-            });
-            var requestOptions = {
+            let raw = JSON.stringify({
+                "action": action,
+                 "text2display": document.getElementById('text2display').value
+            })
+
+            if (action === 'trigger-send-text') document.getElementById('text2display').value = ''
+
+            let requestOptions = {
                 method: 'POST',
                 headers: myHeaders,
                 body: raw,
                 redirect: 'follow'
-            };
+            }
 
             fetch("/api/action/", requestOptions)
               .then(response => response.json())
