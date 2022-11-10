@@ -1,5 +1,6 @@
 console.info('Blockclock Starting ...')
 
+require('dotenv').config()
 const render = require('./lib/render.js')
 const display = require('./lib/display.js')
 
@@ -7,10 +8,11 @@ const rainbow = require('./blockclock/rainbow.js')
 const blocktime = require('./blockclock/blocktime.js')
 const movingblock = require('./blockclock/movingblock.js')
 
-const NUM_LEDS = 250
-const FPS = 60
-const WIDTH = 50
-const HEIGHT = 5
+const FPS = process.env.DISPLAY_FPS || 60
+const WIDTH = process.env.DISPLAY_WIDTH || 50
+const HEIGHT = process.env.DISPLAY_HEIGHT || 5
+const BRIGHTNESS = process.env.DISPLAY_BRIGHTNESS || 50
+const NUM_LEDS = WIDTH * HEIGHT
 
 process.on('unhandledRejection', error => {
   console.error(error)
@@ -30,7 +32,7 @@ process.on('SIGINT', function () {
   process.nextTick(function () { process.exit(0) })
 })
 
-render.init(NUM_LEDS, 100, WIDTH)
+render.init(NUM_LEDS, BRIGHTNESS, WIDTH)
 
 display.init(WIDTH, HEIGHT)
 display.setColors(0xFFFFFF, display.NOT_SET)

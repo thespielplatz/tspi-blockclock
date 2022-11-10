@@ -1,4 +1,5 @@
 console.info('Blockclock Starting ...')
+require('dotenv').config()
 
 const render = require('./lib/render.js')
 const display = require('./lib/display.js')
@@ -6,10 +7,12 @@ const display = require('./lib/display.js')
 const Blocktime = require('./blockclock/blocktime_updater.js')
 const Transactionblock = require('./blockclock/transactionblock.js')
 
-const NUM_LEDS = 250
-const FPS = 60
-const WIDTH = 50
-const HEIGHT = 5
+const FPS = process.env.DISPLAY_FPS || 60
+const WIDTH = process.env.DISPLAY_WIDTH || 50
+const HEIGHT = process.env.DISPLAY_HEIGHT || 5
+const BRIGHTNESS = process.env.DISPLAY_BRIGHTNESS || 50
+const NUM_LEDS = WIDTH * HEIGHT
+
 const TRANSACTION_MAX = HEIGHT * HEIGHT
 
 process.on('unhandledRejection', error => {
@@ -30,7 +33,7 @@ process.on('SIGINT', function () {
   process.nextTick(function () { process.exit(0) })
 })
 
-render.init(NUM_LEDS, 50, WIDTH)
+render.init(NUM_LEDS, BRIGHTNESS, WIDTH)
 
 display.init(WIDTH, HEIGHT)
 display.setColors(0xFFFFFF, display.NOT_SET)

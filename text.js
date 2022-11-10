@@ -1,14 +1,14 @@
 console.info('Just Rendering Text ...')
 
+require('dotenv').config()
 const render = require('./lib/render.js')
 const display = require('./lib/display.js')
-const rainbow = require('./blockclock/rainbow')
-const blocktime = require('./blockclock/blocktime')
-const movingblock = require('./blockclock/movingblock')
 
-const NUM_LEDS = 250
-const WIDTH = 50
-const HEIGHT = 5
+const FPS = process.env.DISPLAY_FPS || 60
+const WIDTH = process.env.DISPLAY_WIDTH || 50
+const HEIGHT = process.env.DISPLAY_HEIGHT || 5
+const BRIGHTNESS = process.env.DISPLAY_BRIGHTNESS || 50
+const NUM_LEDS = WIDTH * HEIGHT
 
 process.on('unhandledRejection', error => {
   console.error(error)
@@ -28,7 +28,7 @@ process.on('SIGINT', function () {
   process.nextTick(function () { process.exit(0) })
 })
 
-render.init(NUM_LEDS, 50, WIDTH)
+render.init(NUM_LEDS, BRIGHTNESS, WIDTH)
 
 display.init(WIDTH, HEIGHT)
 display.setColors(0xFFFFFF, display.NOT_SET)
@@ -47,4 +47,4 @@ draw()
 
 setInterval(function () {
   draw()
-}, 1000)
+}, 1.0 / FPS)

@@ -11,10 +11,11 @@ const Ready = require('./blocktris/screen-ready')
 const Game = require('./blocktris/screen-game')
 const GameOver = require('./blocktris/screen-gameover')
 
-const NUM_LEDS = 250
-const FPS = 60
-const WIDTH = 50
-const HEIGHT = 5
+const FPS = process.env.DISPLAY_FPS || 60
+const WIDTH = process.env.DISPLAY_WIDTH || 50
+const HEIGHT = process.env.DISPLAY_HEIGHT || 5
+const BRIGHTNESS = process.env.DISPLAY_BRIGHTNESS || 50
+const NUM_LEDS = WIDTH * HEIGHT
 
 // ------------ Proccess exit
 
@@ -39,7 +40,7 @@ process.on('SIGINT', function () {
 
 // ------------ Renderer and Display
 
-render.init(NUM_LEDS, 150, WIDTH)
+render.init(NUM_LEDS, BRIGHTNESS, WIDTH)
 
 display.init(WIDTH, HEIGHT)
 display.setColors(0xFf0000, display.NOT_SET)
