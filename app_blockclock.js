@@ -12,8 +12,7 @@ const ScreenClock = require('./blockclock/ScreenClock')
 const ScreenNewBlock = require('./blockclock/ScreenNewBlock')
 
 const Frontend = require('./blockclock/Frontend')
-const app = require('./blockclock/app')
-const {version: VERSION} = require('./package.json')
+const Movingblock = require('./animations/movingblock.js')
 
 const FPS = process.env.DISPLAY_FPS || 60
 const WIDTH = process.env.DISPLAY_WIDTH || 50
@@ -34,7 +33,8 @@ let state = {
   'running': true,
   'blocktime': 0,
   'newblock': {
-    'rainbow': true
+    'rainbow': true,
+    'movingblock': true
   }
 }
 
@@ -47,14 +47,16 @@ sm.addScreen(ScreenEmpty.NAME, new ScreenEmpty(sm, display))
 sm.addScreen(ScreenNewBlock.NAME, new ScreenNewBlock(sm, display))
 
 sm.switchTo(ScreenClock.NAME, { 'blocktime': state.blocktime })
-setTimeout(() => { sm.switchTo(ScreenNewBlock.NAME)}, 1000)
+//setTimeout(() => { sm.switchTo(ScreenNewBlock.NAME)}, 1000)
 
 
 // ------------ Blockclock
+
 sm.setOnMessageCallback((options) => {
   switch (options.message) {
     case ScreenNewBlock.MSG_FINISHED:
       sm.switchTo(ScreenClock.NAME, { 'blocktime': state.blocktime })
+      if (state.newblock.movingblock) startMovingBlock()
       break;
   }
 })
@@ -65,13 +67,30 @@ setTimeout(() => { blocktime.start() }, 1000)
 blocktime.setNewBlockCallback((blocktime) => {
   state.blocktime = blocktime
   if (state.newblock.rainbow && sm.getScreenName() === ScreenClock.NAME) {
+    movingblock = null
     sm.switchTo(ScreenNewBlock.NAME)
     return
+  }
+
+  if (sm.getScreenName() === ScreenClock.NAME) {
+    startMovingBlock()
   }
 
   sm.sendMessage({ 'message' : 'blocktime', 'blocktime': state.blocktime })
 })
 
+// ------------ Frontend
+
+let movingblock = null
+function startMovingBlock() {
+  if (movingblock !== null) return
+  movingblock = Movingblock
+  movingblock.start(WIDTH, HEIGHT, 0, 12)
+
+  movingblock.setFinishedCallback(() => {
+    movingblock = null
+  })
+}
 
 // ------------ Frontend
 
@@ -90,17 +109,29 @@ frontend.setActionCallback((data) => {
 
     case 'animation-off':
       state.newblock.rainbow = false
+      state.newblock.movingblock = false
       break;
 
     case 'animation-rainbow':
       state.newblock.rainbow = !state.newblock.rainbow
       break;
+
+    case 'animation-moving-block':
+      state.newblock.movingblock = !state.newblock.movingblock
+      break;
+
+    case 'trigger-moving-block':
+      startMovingBlock()
+      break;
+
   }
 
   let actives = []
-  actives.push(state.running ? 'turnon' : 'turnoff')
   if (state.newblock.rainbow) actives.push('animation-rainbow')
-  else actives.push('animation-off')
+  if (state.newblock.movingblock) actives.push('animation-moving-block')
+  if (actives.length <= 0) actives.push('animation-off')
+
+  actives.push(state.running ? 'turnon' : 'turnoff')
   return actives
 })
 frontend.start()
@@ -115,7 +146,13 @@ setInterval(function () {
     return
   }
   inFrame = true
+  display.fill(0x000000)
+  display.setColors(0xFFFFFF)
+
+  if (movingblock) movingblock.render(display)
+
   sm.onRender(FPS)
+
   renderer.render(display.getPixelData())
   inFrame = false
 }, 1000 / FPS)

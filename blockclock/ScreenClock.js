@@ -1,4 +1,5 @@
 const ScreenPrototype = require('../lib/StateMachine/ScreenPrototype.js')
+const rainbow = require('../animations/rainbow')
 
 class ScreenClock extends ScreenPrototype {
   static NAME = 'SCREEN_CLOCK'
@@ -7,6 +8,7 @@ class ScreenClock extends ScreenPrototype {
     super(statemachine, display)
 
     this.blocktime = '1'
+    this.offset = 0
   }
 
   onEnter(options) {
@@ -15,14 +17,15 @@ class ScreenClock extends ScreenPrototype {
   }
 
   renderTime() {
-    this.display.fill(0x000000)
-    this.display.setColors(0xFFFFFF)
-
     const blockAsText = this.blocktime.toString()
     const charWidths = blockAsText.length * 3 - (blockAsText.split('1').length - 1)
     const spacings = (blockAsText.length - 1)
-    const offset = Math.floor((this.display.getWidth() - charWidths - spacings) / 2)
-    this.display.writeLine(this.blocktime, offset)
+    this.offset = Math.floor((this.display.getWidth() - charWidths - spacings) / 2)
+  }
+
+  onRender(fps) {
+    this.display.setColors(0xFFFFFF)
+    this.display.writeLine(this.blocktime, this.offset)
   }
 
   onMessage(options) {

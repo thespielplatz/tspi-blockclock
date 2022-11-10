@@ -5,7 +5,7 @@ const WS281xRenderer = require('./lib/WS281xRenderer.js')
 
 const rainbow = require('./animations/rainbow.js')
 const blocktime = require('./simple/blocktime.js')
-const movingblock = require('./simple/movingblock.js')
+const movingblock = require('./animations/movingblock.js')
 const PixelDisplay = require('./lib/PixelDisplay')
 
 const FPS = process.env.DISPLAY_FPS || 60
