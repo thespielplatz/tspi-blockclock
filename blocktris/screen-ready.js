@@ -1,7 +1,8 @@
-const Screen = require('./screen-prototype.js')
+const ScreenPrototype = require('../lib/StateMachine/StatePrototype.js')
 const Piece = require('.//tetris/piece')
+const Screen = require('./screen')
 
-class ReadyScreen extends Screen {
+class ReadyScreen extends ScreenPrototype {
   constructor(sm, display, sg) {
     super(sm, display)
 

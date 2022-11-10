@@ -1,0 +1,6 @@
+module.exports = {
+  STARTUP: 'STATE_STARTUP',
+  GAME: 'STATE_GAME',
+  GAME_OVER: 'STATE_GAME_OVER',
+  READY: 'STATE_READY'
+}

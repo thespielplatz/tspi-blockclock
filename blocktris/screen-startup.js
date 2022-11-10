@@ -1,6 +1,6 @@
-const Screen = require('./screen-prototype.js')
+const ScreenPrototype = require('../lib/StateMachine/StatePrototype.js')
 
-class StartupScreen extends Screen {
+class StartupScreen extends ScreenPrototype {
   onEnter(options) {
     this.display.fill(0x000000)
     this.display.setColors(0xFFFFFF)

@@ -1,6 +1,7 @@
-const Screen = require('./screen-prototype.js')
+const ScreenPrototype = require('../lib/StateMachine/StatePrototype.js')
+const Screen = require('./screen')
 
-class GameOverScreen extends Screen {
+class GameOverScreen extends ScreenPrototype {
   constructor(sm, display, sg) {
     super(sm, display)
 
