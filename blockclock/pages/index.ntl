@@ -26,13 +26,6 @@
                 color: white;
             }
 
-            .content h1 {
-                color: white;
-                font-family: 'Bebas Neue', cursive;
-                font-size: 1rem;
-                text-shadow: 0px 1px 0px #C56200;
-            }
-
             body {
                 background: rgb(33,37,41);
                 letter-spacing: 0.5px;
@@ -66,11 +59,24 @@
 
             .nav-title {
                 font-family: 'Bebas Neue', cursive;
-                font-size: 1.2rem;
+                font-size: 2rem;
+                font-weight: bold;
                 text-shadow: 0px 3px 0px #C56200;
             }
 
+            .content h1 {
+                color: white;
+                font-family: 'Bebas Neue', cursive;
+                font-size: 2rem;
+                font-weight: normal;
+                text-shadow: 0px 1px 0px #C56200;
+            }
 
+            .is-orange {
+                background-color: #F7941E;
+                border-color: transparent;
+                color: #fff;
+            }
         </style>
     </head>
 
@@ -83,10 +89,14 @@
 
         <div class="content">
             <h1 class="title">Generel</h1>
-            <button class="button is-primary" data-action="turnon">On</button>
-            <button class="button is-danger" data-action="turnoff">Off</button>
+            <button class="button" data-action="turnon" data-active="is-primary">On</button>
+            <button class="button" data-action="turnoff" data-active="is-danger">Off</button>
         </div>
-
+        <div class="content">
+            <h1 class="title">New Block Animation</h1>
+            <button class="button" data-action="animation-off">Off</button>
+            <button class="button" data-action="animation-rainbow">Rainbow</button>
+        </div>
             <!-- Hero content: will be in the middle
             <div class="hero-body">
                 <div class="container">
@@ -112,29 +122,51 @@
             -->
         </section>
     <script>
-        const matches = document.querySelectorAll('[data-action]')
-        matches.forEach((button) => {
+        function sendAction(action) {
+            var myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({
+                "action": action
+            });
+            var requestOptions = {
+                method: 'POST',
+                headers: myHeaders,
+                body: raw,
+                redirect: 'follow'
+            };
+
+            fetch("/api/action/", requestOptions)
+              .then(response => response.json())
+              .then(processResult)
+              .catch(error => console.log('error', error));
+        }
+
+        function processResult(result) {
+            console.log(result)
+            buttons.forEach((button) => {
+                let activeClass = button.getAttribute('data-active') || 'is-orange'
+                button.className = button.className.replace(activeClass, '').trim()
+            })
+
+            result.forEach((buttonData) => {
+                let activeButtons = document.querySelectorAll(`[data-action=${buttonData}]`)
+                activeButtons.forEach(button => {
+                    let activeClass = button.getAttribute('data-active') || 'is-orange'
+                    button.className += ' ' + activeClass
+                })
+            })
+        }
+
+        const buttons = document.querySelectorAll('[data-action]')
+        buttons.forEach((button) => {
             const action = button.getAttribute('data-action')
             button.addEventListener('click', () => {
-                var myHeaders = new Headers();
-                myHeaders.append("Content-Type", "application/json");
-
-                var raw = JSON.stringify({
-                    "action": action
-                });
-                var requestOptions = {
-                    method: 'POST',
-                    headers: myHeaders,
-                    body: raw,
-                    redirect: 'follow'
-                };
-
-                fetch("/api/action/", requestOptions)
-                  .then(response => response.text())
-                  .then(result => console.log(result))
-                  .catch(error => console.log('error', error));
+                sendAction(action)
             })
         })
+
+        sendAction('init')
     </script>
     </body>
 </html>

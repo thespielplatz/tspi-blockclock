@@ -7,8 +7,9 @@ const PixelDisplay = require('./lib/PixelDisplay')
 const Blocktime = require('./blockclock/BlockTime.js')
 
 const StateMachine = require('./lib/StateMachine/StateMachine')
-const ScreenClock = require('./blockclock/ScreenClock')
 const ScreenEmpty = require('./blockclock/ScreenEmpty')
+const ScreenClock = require('./blockclock/ScreenClock')
+const ScreenNewBlock = require('./blockclock/ScreenNewBlock')
 
 const Frontend = require('./blockclock/Frontend')
 const app = require('./blockclock/app')
@@ -27,14 +28,50 @@ renderer.init()
 const display = new PixelDisplay(WIDTH, HEIGHT)
 display.setColors(0xFFFFFF, PixelDisplay.NOT_SET)
 
+// ------------ Data
+
+let state = {
+  'running': true,
+  'blocktime': 0,
+  'newblock': {
+    'rainbow': true
+  }
+}
+
 // ------------ Main State Machine
 
 sm = new StateMachine.StateMachine()
 const screenClock = new ScreenClock(sm, display)
 sm.addScreen(ScreenClock.NAME, screenClock)
 sm.addScreen(ScreenEmpty.NAME, new ScreenEmpty(sm, display))
-sm.switchTo(ScreenClock.NAME)
-//setTimeout(() => { sm.switchTo(Screen.GAME)}, 1000)
+sm.addScreen(ScreenNewBlock.NAME, new ScreenNewBlock(sm, display))
+
+sm.switchTo(ScreenClock.NAME, { 'blocktime': state.blocktime })
+setTimeout(() => { sm.switchTo(ScreenNewBlock.NAME)}, 1000)
+
+
+// ------------ Blockclock
+sm.setOnMessageCallback((options) => {
+  switch (options.message) {
+    case ScreenNewBlock.MSG_FINISHED:
+      sm.switchTo(ScreenClock.NAME, { 'blocktime': state.blocktime })
+      break;
+  }
+})
+
+const blocktime = new Blocktime()
+setTimeout(() => { blocktime.start() }, 1000)
+
+blocktime.setNewBlockCallback((blocktime) => {
+  state.blocktime = blocktime
+  if (state.newblock.rainbow && sm.getScreenName() === ScreenClock.NAME) {
+    sm.switchTo(ScreenNewBlock.NAME)
+    return
+  }
+
+  sm.sendMessage({ 'message' : 'blocktime', 'blocktime': state.blocktime })
+})
+
 
 // ------------ Frontend
 
@@ -42,24 +79,33 @@ const frontend = new Frontend()
 frontend.setActionCallback((data) => {
   switch (data.action) {
     case 'turnoff':
+      state.running = false
       sm.switchTo(ScreenEmpty.NAME)
       break;
 
     case 'turnon':
-      sm.switchTo(ScreenClock.NAME)
+      state.running = true
+      sm.switchTo(ScreenClock.NAME, { 'blocktime': state.blocktime })
+      break;
+
+    case 'animation-off':
+      state.newblock.rainbow = false
+      break;
+
+    case 'animation-rainbow':
+      state.newblock.rainbow = !state.newblock.rainbow
       break;
   }
+
+  let actives = []
+  actives.push(state.running ? 'turnon' : 'turnoff')
+  if (state.newblock.rainbow) actives.push('animation-rainbow')
+  else actives.push('animation-off')
+  return actives
 })
 frontend.start()
 
-// ------------ Blockclock
-
-const blocktime = new Blocktime()
-setTimeout(() => { blocktime.start() }, 1000)
-
-blocktime.setNewBlockCallback((blocktime) => {
-  sm.sendMessage({ message: 'newblock', blocktime })
-})
+// ------------ Render Loop
 
 let inFrame = false
 

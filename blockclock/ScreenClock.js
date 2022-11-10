@@ -6,10 +6,11 @@ class ScreenClock extends ScreenPrototype {
   constructor(statemachine, display) {
     super(statemachine, display)
 
-    this.blocktime = ''
+    this.blocktime = '1'
   }
 
   onEnter(options) {
+    if (options && ('blocktime' in options)) this.blocktime = options.blocktime
     this.renderTime()
   }
 
@@ -25,7 +26,7 @@ class ScreenClock extends ScreenPrototype {
   }
 
   onMessage(options) {
-    if (options.message == 'newblock') {
+    if (options.message == 'blocktime') {
       this.blocktime = options.blocktime
       this.renderTime()
     }

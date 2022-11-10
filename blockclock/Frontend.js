@@ -17,8 +17,11 @@ class Frontend {
 
     app.post('/api/action', (req, res) => {
       console.log(req.body)
-      if (self.actionCallback) self.actionCallback(req.body)
-      res.json('ok').end()
+      let response = ""
+      if (self.actionCallback) {
+        response = self.actionCallback(req.body)
+      }
+      res.json(response).end()
     })
 
 

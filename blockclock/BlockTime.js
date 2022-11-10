@@ -2,6 +2,12 @@ const axios = require('axios')
 
 let dev_height = 21000
 
+if (process.env.DEV === 'true') {
+  setInterval(() => {
+    ++dev_height
+  }, 20 * 1000)
+}
+
 class BlockTime {
   constructor(timeintervalInSec = 5) {
     this.timeinterval = timeintervalInSec * 1000
@@ -25,8 +31,6 @@ class BlockTime {
       setTimeout(() => {
         self.processHeightResponse({ data: dev_height })
         self.processVSizeResponse({ data: 21 * 1024 })
-
-        dev_height++
       }, 250)
     } else {
       axios.get('https://mempool.space/api/blocks/tip/height').then(this.processHeightResponse.bind(this), err => { console.log(`Error: ${err}`)})
