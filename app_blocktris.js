@@ -2,7 +2,7 @@ console.info('Blocktris Starting ...')
 
 require('dotenv').config()
 const WS281xRenderer = require('./lib/WS281xRenderer.js')
-const SocketGames = require('./lib/SocketGames.js')
+const SocketGames = require('./blocktris/SocketGames.js')
 const StateMachine = require('./blocktris/statemachine')
 const Screen = require('./blocktris/screen-prototype.js')
 const Startup = require('./blocktris/screen-startup')

@@ -22,8 +22,14 @@ renderer.init()
 const display = new PixelDisplay(WIDTH, HEIGHT)
 display.setColors(0xFFFFFF, PixelDisplay.NOT_SET)
 
-const blocktime = new Blocktime()
+setInterval(function () {
+  display.fill(0)
+  display.writeLine('BLOCKCLOCK', 5)
+  renderer.render(display.getPixelData())
+}, 1000 / FPS)
 
+/*
+const blocktime = new Blocktime()
 let blocks = []
 blocks.push(new Transactionblock(HEIGHT))
 blocks[0].x = 26
@@ -61,3 +67,4 @@ blocktime.setVsizeChangedCallback((vsize) => {
   blocks[0].setTransactions(newSize)
 })
 
+*/
