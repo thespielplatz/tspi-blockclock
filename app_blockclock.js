@@ -59,7 +59,7 @@ sm.setOnMessageCallback((options) => {
     case ScreenNewBlock.MSG_FINISHED:
       if (sm.getScreenName() !== ScreenNewBlock.NAME) return
 
-        sm.switchTo(ScreenClock.NAME, { 'blocktime': state.blocktime })
+      sm.switchTo(ScreenClock.NAME, { 'blocktime': state.blocktime })
       if (state.newblock.movingblock) startMovingBlock()
       break;
   }
@@ -71,18 +71,15 @@ setTimeout(() => { blocktime.start() }, 1000)
 blocktime.setNewBlockCallback((blocktime) => {
   state.blocktime = blocktime
 
-  if (sm.getScreenName() !== ScreenClock.NAME) {
-    sm.sendMessage({ 'message' : 'blocktime', 'blocktime': state.blocktime })
-    return
-  }
+  sm.sendMessage({ 'message' : 'blocktime', 'blocktime': state.blocktime })
 
-  if (state.newblock.rainbow) {
+  if (sm.getScreenName() === ScreenClock.NAME && state.newblock.rainbow) {
     movingblock = null
     sm.switchTo(ScreenNewBlock.NAME)
     return
   }
 
-  if (sm.getScreenName() === ScreenClock.NAME) {
+  if (sm.getScreenName() === ScreenClock.NAME && state.newblock.movingblock) {
     startMovingBlock()
   }
 
