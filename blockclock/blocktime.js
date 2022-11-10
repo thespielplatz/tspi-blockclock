@@ -1,4 +1,5 @@
 const axios = require('axios')
+const {response} = require('express')
 
 let blocktime = 1
 let text = ""
@@ -8,23 +9,31 @@ let newBlockStartCallback = undefined
 let newBlockEndCallback = undefined
 let textColor = 0xFFFFFF
 
+const processResponse = (response) => {
+  console.log(response.data)
+
+  if (blocktime == 0) {
+    blocktime = response.data
+    text = blocktime.toString()
+    setTimeout(getBlockTime, 5000)
+
+  } else if (blocktime != response.data) {
+    blocktime = response.data
+    newBlock()
+
+  } else {
+    setTimeout(getBlockTime, 5000)
+  }
+}
+
 const getBlockTime = () => {
-  axios.get('https://blockstream.info/api/blocks/tip/height').then((response) => {
-    console.log(response.data)
+  if (process.env.DEV == 1) {
+    const response = { data : 2100 }
+    processResponse(response)
+    return
+  }
 
-    if (blocktime == 0) {
-      blocktime = response.data
-      text = blocktime.toString()
-      setTimeout(getBlockTime, 5000)
-
-    } else if (blocktime != response.data) {
-      blocktime = response.data
-      newBlock()
-
-    } else {
-      setTimeout(getBlockTime, 5000)
-    }
-  }, err => { setTimeout(getBlockTime, 5000) })
+  axios.get('https://blockstream.info/api/blocks/tip/height').then(processResponse, err => { setTimeout(getBlockTime, 5000) })
 }
 
 const start = () => {

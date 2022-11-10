@@ -1,7 +1,7 @@
 console.info('Blockclock Starting ...')
 
 require('dotenv').config()
-const render = require('./lib/render.js')
+const WS281xRenderer = require('./lib/WS281xRenderer.js')
 const display = require('./lib/display.js')
 
 const rainbow = require('./blockclock/rainbow.js')
@@ -14,25 +14,8 @@ const HEIGHT = process.env.DISPLAY_HEIGHT || 5
 const BRIGHTNESS = process.env.DISPLAY_BRIGHTNESS || 50
 const NUM_LEDS = WIDTH * HEIGHT
 
-process.on('unhandledRejection', error => {
-  console.error(error)
-  render.deinit()
-  process.nextTick(function () { process.exit(1) })
-})
-
-process.on('uncaughtException', error => {
-  console.error(error)
-  render.deinit()
-  process.nextTick(function () { process.exit(1) })
-})
-
-// ---- trap the SIGINT and reset before exit
-process.on('SIGINT', function () {
-  render.deinit()
-  process.nextTick(function () { process.exit(0) })
-})
-
-render.init(NUM_LEDS, BRIGHTNESS, WIDTH)
+const renderer = new WS281xRenderer(NUM_LEDS, BRIGHTNESS, WIDTH)
+renderer.init()
 
 display.init(WIDTH, HEIGHT)
 display.setColors(0xFFFFFF, display.NOT_SET)
@@ -44,9 +27,8 @@ setInterval(function () {
   movingblock.render(display)
   blocktime.render(display)
 
-  render.render(display.getPixelData())
+  renderer.render(display.getPixelData())
 }, 1000 / FPS)
-
 
 blocktime.start()
 
