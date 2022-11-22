@@ -15,11 +15,11 @@ const ScreenText = require('./blockclock/ScreenText')
 const Frontend = require('./blockclock/Frontend')
 const Movingblock = require('./animations/movingblock.js')
 
-const FPS = process.env.DISPLAY_FPS || 60
-const WIDTH = process.env.DISPLAY_WIDTH || 50
-const HEIGHT = process.env.DISPLAY_HEIGHT || 5
-const BRIGHTNESS = process.env.DISPLAY_BRIGHTNESS || 50
-const REVERTED_ROWS = process.env.DISPLAY_REVERTED_ROWS || '1,3'
+const FPS = parseInt(process.env.DISPLAY_FPS) || 60
+const WIDTH = parseInt(process.env.DISPLAY_WIDTH) || 50
+const HEIGHT = parseInt(process.env.DISPLAY_HEIGHT) || 5
+const BRIGHTNESS = parseInt(process.env.DISPLAY_BRIGHTNESS) || 50
+const REVERTED_ROWS = process.env.DISPLAY_REVERTED_ROWS || ''
 const NUM_LEDS = WIDTH * HEIGHT
 
 const renderer = new WS281xRenderer(NUM_LEDS, BRIGHTNESS, WIDTH, REVERTED_ROWS)

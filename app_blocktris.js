@@ -12,15 +12,16 @@ const Game = require('./blocktris/screen-game')
 const GameOver = require('./blocktris/screen-gameover')
 const PixelDisplay = require('./lib/PixelDisplay')
 
-const FPS = process.env.DISPLAY_FPS || 60
-const WIDTH = process.env.DISPLAY_WIDTH || 50
-const HEIGHT = process.env.DISPLAY_HEIGHT || 5
-const BRIGHTNESS = process.env.DISPLAY_BRIGHTNESS || 50
+const FPS = parseInt(process.env.DISPLAY_FPS) || 60
+const WIDTH = parseInt(process.env.DISPLAY_WIDTH) || 50
+const HEIGHT = parseInt(process.env.DISPLAY_HEIGHT) || 5
+const BRIGHTNESS = parseInt(process.env.DISPLAY_BRIGHTNESS) || 50
+const REVERTED_ROWS = process.env.DISPLAY_REVERTED_ROWS || ''
 const NUM_LEDS = WIDTH * HEIGHT
 
 // ------------ Renderer and Display
 
-const renderer = new WS281xRenderer(NUM_LEDS, BRIGHTNESS, WIDTH)
+const renderer = new WS281xRenderer(NUM_LEDS, BRIGHTNESS, WIDTH, REVERTED_ROWS)
 renderer.init()
 
 const display = new PixelDisplay(WIDTH, HEIGHT)
