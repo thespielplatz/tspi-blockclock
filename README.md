@@ -35,6 +35,17 @@ pm2 start ecosystem.config.js
 
 # save pm2 list for startup
 pm2 save
+```
 
+### Apps
 
-´´´
+```
+# Text anzeigen
+sudo node app_text.js "hi hi hi"
+
+# Pixel Testen
+sudo node app_pixel.js 50 65280
+
+# Blockclock
+sudo node app_blockclock.js
+```
