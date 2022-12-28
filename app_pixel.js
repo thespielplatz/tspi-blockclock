@@ -18,7 +18,7 @@ if (appArgs <= 0) {
 
 
 
-const pixelIndex = Math.min(100, parseInt(appArgs[0]))
+const pixelIndex = parseInt(appArgs[0])
 const pixelColor = (appArgs.length >= 2 ? parseInt(appArgs[1]) : 0xFFFFFF)
 
 const WIDTH = pixelIndex
