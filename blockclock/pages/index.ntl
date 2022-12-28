@@ -95,6 +95,8 @@
             <h1 class="title">Generel</h1>
             <button class="button" data-action="turnon" data-active="is-primary">On</button>
             <button class="button" data-action="turnoff" data-active="is-danger">Off</button>
+            <button class="button" data-action="timemode-block">Show Blocktime</button>
+            <button class="button" data-action="timemode-time">Show Time</button>
         </div>
         <div class="content">
             <h1 class="title">New Block Animation</h1>

@@ -11,6 +11,7 @@ const ScreenEmpty = require('./blockclock/ScreenEmpty')
 const ScreenClock = require('./blockclock/ScreenClock')
 const ScreenNewBlock = require('./blockclock/ScreenNewBlock')
 const ScreenText = require('./blockclock/ScreenText')
+const ScreenTime = require('./blockclock/ScreenTime')
 
 const Frontend = require('./blockclock/Frontend')
 const Movingblock = require('./animations/movingblock.js')
@@ -33,6 +34,7 @@ display.setColors(0xFFFFFF, PixelDisplay.NOT_SET)
 let state = {
   'running': true,
   'blocktime': 0,
+  'timemode' : 'block',
   'newblock': {
     'rainbow': true,
     'movingblock': true
@@ -48,6 +50,7 @@ sm.addScreen(ScreenClock.NAME, screenClock)
 sm.addScreen(ScreenEmpty.NAME, new ScreenEmpty(sm, display))
 sm.addScreen(ScreenNewBlock.NAME, new ScreenNewBlock(sm, display))
 sm.addScreen(ScreenText.NAME, new ScreenText(sm, display))
+sm.addScreen(ScreenTime.NAME, new ScreenTime(sm, display))
 
 sm.switchTo(ScreenClock.NAME, { 'blocktime': state.blocktime })
 //setTimeout(() => { sm.switchTo(ScreenNewBlock.NAME)}, 1000)
@@ -98,6 +101,16 @@ function startMovingBlock() {
   })
 }
 
+function showDefault() {
+  if (state.running === false) {
+    sm.switchTo(ScreenEmpty.NAME)
+    return
+  }
+
+  if (state.timemode === 'block') sm.switchTo(ScreenClock.NAME, { 'blocktime': state.blocktime })
+  if (state.timemode === 'time') sm.switchTo(ScreenTime.NAME, {  })
+}
+
 // ------------ Frontend
 
 const frontend = new Frontend()
@@ -105,12 +118,22 @@ frontend.setActionCallback((data) => {
   switch (data.action) {
     case 'turnoff':
       state.running = false
-      sm.switchTo(ScreenEmpty.NAME)
+      showDefault()
       break;
 
     case 'turnon':
       state.running = true
-      sm.switchTo(ScreenClock.NAME, { 'blocktime': state.blocktime })
+      showDefault()
+      break;
+
+    case 'timemode-block':
+      state.timemode = 'block'
+      showDefault()
+      break;
+
+    case 'timemode-time':
+      state.timemode = 'time'
+      showDefault()
       break;
 
     case 'animation-off':
@@ -135,7 +158,7 @@ frontend.setActionCallback((data) => {
         sm.switchTo(ScreenText.NAME, { 'text': data.text2display })
         state.isshowingtext = true
       } else {
-        sm.switchTo(ScreenClock.NAME, { 'blocktime': state.blocktime })
+        showDefault()
         state.isshowingtext = false
       }
       break;
@@ -147,7 +170,11 @@ frontend.setActionCallback((data) => {
   if (actives.length <= 0) actives.push('animation-off')
 
   actives.push(state.running ? 'turnon' : 'turnoff')
+
   if (state.isshowingtext) actives.push('trigger-send-text')
+  if (state.timemode === 'block') actives.push('timemode-block')
+  if (state.timemode === 'time') actives.push('timemode-time')
+
   return actives
 })
 frontend.start()
@@ -172,48 +199,3 @@ setInterval(function () {
   renderer.render(display.getPixelData())
   inFrame = false
 }, 1000 / FPS)
-
-/*
-
-const TRANSACTION_MAX = HEIGHT * HEIGHT
-const Transactionblock = require('./blockclock/transactionblock.js')
-
-const blocktime = new Blocktime()
-let blocks = []
-blocks.push(new Transactionblock(HEIGHT))
-blocks[0].x = 26
-blocks.push(new Transactionblock(HEIGHT, true))
-blocks[1].x = blocks[0].x + 9
-blocks.push(new Transactionblock(HEIGHT, true))
-blocks[2].x = blocks[1].x + 6
-blocks.push(new Transactionblock(HEIGHT, true))
-blocks[3].x = blocks[2].x + 6
-
-setInterval(function () {
-  display.fill(0)
-  display.writeLine(blocktime.blocktime.toString(), 1)
-
-  display.setPixel(33, 0, 0xFF8800)
-  display.setPixel(33, 2, 0xFF8800)
-  display.setPixel(33, 4, 0xFF8800)
-
-  for (let i = 0; i < blocks.length; i++) {
-    blocks[i].update(1 / FPS)
-    blocks[i].render(display)
-  }
-
-  renderer.render(display.getPixelData())
-}, 1000 / FPS)
-
-
-blocktime.start()
-
-blocktime.setNewBlockCallback((blocktime) => {
-})
-
-blocktime.setVsizeChangedCallback((vsize) => {
-  let newSize = Math.min(TRANSACTION_MAX, 1 + Math.floor(TRANSACTION_MAX * vsize / (1024 * 1024)))
-  blocks[0].setTransactions(newSize)
-})
-
-*/
