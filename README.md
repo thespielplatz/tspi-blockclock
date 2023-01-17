@@ -26,6 +26,12 @@ Rapsi Power Consumption ~ 0,4A
 - create .env from .env.example
 - npm i
 
+## Simple Testing
+```bash
+sudo node app_pixel.js 50 65280
+```
+
+
 ### Problem: Hardware revision is not supported 
 
 - Follow [this](https://github.com/beyondscreen/node-rpi-ws281x-native/issues/130#issuecomment-1253729355)
