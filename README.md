@@ -20,6 +20,16 @@ Rapsi Power Consumption ~ 0,4A
 
 `ws281x.setBrightness(100) // below 60%`
 
+# Setup
+
+- clone
+- create .env from .env.example
+- npm i
+
+### Problem: Hardware revision is not supported 
+
+- Follow [this](https://github.com/beyondscreen/node-rpi-ws281x-native/issues/130#issuecomment-1253729355)
+
 ### Autostart
 
 ``` bash
