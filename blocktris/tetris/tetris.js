@@ -43,7 +43,7 @@ class Tetris {
 
   createPiece() {
     this.numOfPieces++
-    this.nextPiece = Piece.create()
+    this.nextPiece = Piece.create(this.width)
     if (this.onNextPieceCallback) this.onNextPieceCallback(this.nextPiece)
   }
 

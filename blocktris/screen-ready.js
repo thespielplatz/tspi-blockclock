@@ -63,7 +63,16 @@ class ReadyScreen extends ScreenPrototype {
     }
 
     this.display.setColors((brightness << 16) + (brightness << 8) + brightness)
-    this.display.writeLine('Tetris', 7, 1, true)
+    if (this.is25x10) {
+      this.display.writeChar(4, 1, 't', true)
+      this.display.writeChar(4, 5, 'e', true)
+      this.display.writeChar(10, 1, 't', true)
+      this.display.writeChar(10, 5, 'r', true)
+      this.display.writeChar(16, 1, 'i', true)
+      this.display.writeChar(16, 5, 's', true)
+    } else {
+      this.display.writeLine('Tetris', 7, 1, true)
+    }
   }
 }
 

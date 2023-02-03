@@ -4,7 +4,11 @@ class StartupScreen extends ScreenPrototype {
   onEnter(options) {
     this.display.fill(0x000000)
     this.display.setColors(0xFFFFFF)
-    this.display.writeLine('startup', 5, 1, true)
+    if (this.is25x10) {
+      this.display.writeLine('strt', 1, 3, true)
+    } else {
+      this.display.writeLine('startup', 5, 1, true)
+    }
   }
 
   onMessage(options) {
