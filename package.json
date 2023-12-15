@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "run": "node build/app.js",
-    "dev": "nodemon app_blocktris.js",
+    "dev-blockclock": "nodemon app_blockclock.js",
+    "dev-blocktris": "nodemon app_blocktris.js",
     "build": "tsc --project tsconfig.json",
     "test": "echo \\\"Error: no samples specified\\\" && exit 1"
   },

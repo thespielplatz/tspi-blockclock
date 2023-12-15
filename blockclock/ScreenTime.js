@@ -1,4 +1,5 @@
 const ScreenPrototype = require('../lib/StateMachine/ScreenPrototype.js')
+const { renderLAB10Logo, SateLogo } = require("../lib/drawings")
 
 class ScreenTime extends ScreenPrototype {
   static NAME = 'SCREEN_TIME'
@@ -29,17 +30,23 @@ class ScreenTime extends ScreenPrototype {
     const min = ("0" + date.getMinutes()).slice(-2)
     const sec = ("0" + date.getSeconds()).slice(-2)
 
-    const timeAsText = `${hours}:${min}:${sec}`
-    const charWidths = timeAsText.length * 3 - (timeAsText.split('1').length - 1)
-    const spacings = (timeAsText.length - 1) - 2 // subtract 2 for ':'
+    // TODO: Make seconds configureable
+    //const timeAsText = `${hours}:${min}:${sec}`
+    const timeAsText = `${hours}:${min}`
+    // NUM_OF_CHARS * CHAR_WIDTH - (shorter '1') + ':' + Spacings
+    const textWidth = 2 * 3 - (timeAsText.split("1").length - 1) + 1 + (timeAsText.length - 1)
 
-    this.offset = Math.floor((this.display.getWidth() - charWidths - spacings) / 2)
+    this.offset = Math.floor((this.display.getWidth() - textWidth) / 2)
+
     this.text = timeAsText
   }
 
   onRender(fps) {
     this.display.setColors(0xFFFFFF)
     this.display.writeLine(this.text, this.offset)
+
+    renderLAB10Logo(this.display,2)
+    SateLogo(this.display, 42)
   }
 }
 
