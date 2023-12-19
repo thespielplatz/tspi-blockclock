@@ -1,7 +1,7 @@
 console.info('Blockclock Starting ...')
 require('dotenv').config()
 
-const WS281xRenderer = require('./lib/WS281xRenderer.js')
+const RendererFactory = require('./lib/Renderer/RendererFactory.js')
 const PixelDisplay = require('./lib/PixelDisplay')
 
 const Blocktime = require('./blockclock/BlockTime.js')
@@ -23,7 +23,12 @@ const BRIGHTNESS = parseInt(process.env.DISPLAY_BRIGHTNESS) || 50
 const REVERTED_ROWS = process.env.DISPLAY_REVERTED_ROWS || ''
 const NUM_LEDS = WIDTH * HEIGHT
 
-const renderer = new WS281xRenderer(NUM_LEDS, BRIGHTNESS, WIDTH, REVERTED_ROWS)
+const renderer = RendererFactory.getRenderer({
+  numLeds: NUM_LEDS,
+  brightness: BRIGHTNESS,
+  width: WIDTH,
+  revertedRows: REVERTED_ROWS,
+})
 renderer.init()
 
 const display = new PixelDisplay(WIDTH, HEIGHT)

@@ -1,7 +1,7 @@
 console.info('Just Rendering pixels ...')
 
 require('dotenv').config()
-const WS281xRenderer = require('./lib/WS281xRenderer.js')
+const RendererFactory = require('./lib/Renderer/RendererFactory.js')
 const PixelDisplay = require('./lib/PixelDisplay.js')
 
 const appArgs = process.argv.slice(2)
@@ -16,8 +16,6 @@ if (appArgs <= 0) {
   process.exit(0)
 }
 
-
-
 const pixelIndex = parseInt(appArgs[0])
 const pixelColor = (appArgs.length >= 2 ? parseInt(appArgs[1]) : 0xFFFFFF)
 
@@ -26,7 +24,12 @@ const HEIGHT = 1
 const BRIGHTNESS = parseInt(process.env.DISPLAY_BRIGHTNESS) || 50
 const NUM_LEDS = WIDTH * HEIGHT
 
-const renderer = new WS281xRenderer(NUM_LEDS, BRIGHTNESS, WIDTH, '')
+const renderer = RendererFactory.getRenderer({
+  numLeds: NUM_LEDS,
+  brightness: BRIGHTNESS,
+  width: WIDTH,
+  revertedRows: '',
+})
 renderer.init()
 
 const display = new PixelDisplay(WIDTH, HEIGHT)
