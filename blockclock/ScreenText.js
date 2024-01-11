@@ -1,4 +1,4 @@
-const ScreenPrototype = require('../lib/StateMachine/ScreenPrototype.js')
+const ScreenPrototype = require('../lib/StateMachine/AbstractState.js')
 
 class ScreenText extends ScreenPrototype {
   static NAME = 'SCREEN_TEXT'

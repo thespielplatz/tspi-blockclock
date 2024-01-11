@@ -1,4 +1,4 @@
-const ScreenPrototype = require('../lib/StateMachine/ScreenPrototype.js')
+const ScreenPrototype = require('../lib/StateMachine/AbstractState.js')
 const Piece = require('.//tetris/piece')
 const Screen = require('./screen')
 
@@ -53,7 +53,7 @@ class ReadyScreen extends ScreenPrototype {
       if (this.activePiece != null && this.activePiece.x >= 0) {
         for (let x = 0; x < this.activePiece.form[0].length; ++x) {
           for (let y = 0; y < this.activePiece.form.length; ++y) {
-            if (this.activePiece.form[y][x] == 1) {
+            if (this.activePiece.form[y][x] === 1) {
               this.display.setPixel(Math.floor(this.activePiece.x) + x, this.activePiece.y + y, this.activePiece.color)
             }
           }

@@ -1,4 +1,4 @@
-const ScreenPrototype = require('../lib/StateMachine/ScreenPrototype.js')
+const ScreenPrototype = require('../lib/StateMachine/AbstractState.js')
 const { renderLAB10Logo, SateLogo } = require("../lib/drawings")
 
 class ScreenTime extends ScreenPrototype {

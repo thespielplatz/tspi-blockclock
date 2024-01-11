@@ -1,4 +1,4 @@
-const ScreenPrototype = require('../lib/StateMachine/ScreenPrototype.js')
+const ScreenPrototype = require('../lib/StateMachine/AbstractState.js')
 
 class StartupScreen extends ScreenPrototype {
   onEnter(options) {
@@ -12,7 +12,7 @@ class StartupScreen extends ScreenPrototype {
   }
 
   onMessage(options) {
-    if (options.message == 'error') {
+    if (options.message === 'error') {
       this.display.fill(0xA00000)
       this.display.setColors(0xFFFFFF)
       this.display.writeLine(options.text + ' :(', 1, 0)

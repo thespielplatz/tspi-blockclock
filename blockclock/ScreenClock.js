@@ -1,5 +1,4 @@
-const ScreenPrototype = require('../lib/StateMachine/ScreenPrototype.js')
-const rainbow = require('../animations/rainbow')
+const ScreenPrototype = require('../lib/StateMachine/AbstractState.js')
 
 class ScreenClock extends ScreenPrototype {
   static NAME = 'SCREEN_CLOCK'
@@ -29,12 +28,12 @@ class ScreenClock extends ScreenPrototype {
   }
 
   onMessage(options) {
-    if (options.message == 'blocktime') {
+    if (options.message === 'blocktime') {
       this.blocktime = options.blocktime
       this.renderTime()
     }
 
-    if (options.message == 'error') {
+    if (options.message === 'error') {
       this.display.fill(0xA00000)
       this.display.setColors(0xFFFFFF)
       this.display.writeLine(options.text + ' :(', 1, 0)
