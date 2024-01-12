@@ -5,6 +5,8 @@ const STATE_NONE = 'STATE_NONE'
 const STATE_PLAY = 'STATE_PLAY'
 const STATE_ANIMATING = 'STATE_ANIMATING'
 
+const COMPLETED_ROWS_PER_LEVEL = 10
+
 class Tetris {
   constructor(w, h) {
     this.state = STATE_NONE
@@ -22,13 +24,16 @@ class Tetris {
     this.data = Array(this.width).fill(-1).map(x => Array(this.height).fill(-1))
     this.active = undefined
     this.pressed = false
-    this.score = 0
     this.steps = 0
     this.state = STATE_PLAY
-    this.speed = this.startSpeed
     this.fallingDown = false
     this.nextPiece = null
     this.numOfPieces = 0
+
+    // level + scoring
+    this.totalScoredRows = 0
+    this.score = 0
+    this.previousScoreWasFullTetris = false
 
     this.createPiece()
   }
@@ -53,8 +58,11 @@ class Tetris {
     // check next piece
     if (this.nextPiece === null) this.createPiece()
 
-    const gameSpeed = this.speed * step * Math.max(1, Math.floor((this.difficultyPiecesCount + this.numOfPieces - 2) / this.difficultyPiecesCount))
-    this.steps += (this.fallingDown ? 300 * step : gameSpeed)
+    if (this.fallingDown) {
+      this.steps = 300 * step
+    } else {
+      this.steps += this.getGameSpeed(step)
+    }
 
     if (this.active === undefined) {
       this.active = this.nextPiece
@@ -86,8 +94,6 @@ class Tetris {
       this.active = undefined
       this.steps = -1
       this.fallingDown = false
-
-      this.addScore(1)
     }
   }
 
@@ -147,14 +153,42 @@ class Tetris {
 
     let score = 0
     switch (foundRows.length) {
-      case 1: score = 10; break;
-      case 2: score = 25; break;
-      case 3: score = 40; break;
-      case 4: score = 60; break;
+      case 1:
+        score = 100
+        this.previousScoreWasFullTetris = false
+        break
+      case 2:
+        score = 300
+        this.previousScoreWasFullTetris = false
+        break
+      case 3:
+        score = 500
+        this.previousScoreWasFullTetris = false
+        break
+      case 4:
+        score = this.previousScoreWasFullTetris ? 1200 : 800
+        this.previousScoreWasFullTetris = true
+        break
     }
-    this.addScore(score)
+
+    // first score, then increase level
+    this.addScore(score * this.getLevel())
+    this.totalScoredRows += foundRows.length
+
+    // add bonus score for softdrop (pressing down-button)
+    if (this.fallingDown) {
+      this.addScore(this.totalScoredRows)
+    }
 
     return true
+  }
+
+  getGameSpeed(updateDeltaInSeconds) {
+    return updateDeltaInSeconds * (1 / Math.pow(0.8 - ((this.getLevel() - 1) * 0.007), this.getLevel() - 1))
+  }
+
+  getLevel() {
+    return Math.floor(this.totalScoredRows / COMPLETED_ROWS_PER_LEVEL) + 1
   }
 
   colorRows(rows, color) {
@@ -209,6 +243,7 @@ class Tetris {
   addScore(scoreAdd) {
     this.score += scoreAdd
     console.log(`Score: ${this.score}`)
+    console.log(`Lines: ${this.totalScoredRows}`)
     if (this.onScoreChangedCallback) this.onScoreChangedCallback(this.score)
   }
 
