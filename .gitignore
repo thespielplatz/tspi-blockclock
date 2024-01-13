@@ -65,7 +65,6 @@ typings/
 # OSX
 .DS_Store
 
-build
-./deploy.sh
+dist
 
 test.js
