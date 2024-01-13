@@ -10,7 +10,7 @@
     "target": "ESNext",
     "lib": ["ESNext"],
     "module": "NodeNext",
-    "moduleResolution": "node",
+    "moduleResolution": "NodeNext",
     "types": ["node"],
     "outDir": "dist",
     "esModuleInterop": true,
