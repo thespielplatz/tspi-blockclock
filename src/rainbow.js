@@ -1,14 +1,19 @@
-const ws281x = require('rpi-ws281x-native-arm6')
+const ws281x_arm7 = require('rpi-ws281x-native')
 
-var NUM_LEDS = parseInt(process.argv[2], 10) || 10,
-    pixelData = new Uint32Array(NUM_LEDS);
+var NUM_LEDS = parseInt(process.argv[2], 10) || 10
 
-ws281x.init(NUM_LEDS);
+channel = ws281x_arm7(NUM_LEDS, {
+  brightness: 50,
+  stripType: 'ws2812'
+})
+
+const pixelData = channel.array
 
 // ---- trap the SIGINT and reset before exit
 process.on('SIGINT', function () {
-  ws281x.reset();
-  process.nextTick(function () { process.exit(0); });
+  ws281x_arm7.reset()
+  ws281x_arm7.finalize()
+  process.nextTick(function () { process.exit(0) });
 });
 
 
@@ -20,8 +25,8 @@ setInterval(function () {
   }
 
   offset = (offset + 1) % 256;
-  ws281x.render(pixelData);
-}, 1000 / 30);
+  ws281x_arm7.render()
+}, 1000 / 30)
 
 console.log('Press <ctrl>+C to exit.');
 

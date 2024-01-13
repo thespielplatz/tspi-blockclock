@@ -1,4 +1,4 @@
-const ws281x = require('rpi-ws281x-native-arm6')
+const ws281x_arm7 = require('rpi-ws281x-native')
 
 import getConfig from './lib/configParser'
 
@@ -14,14 +14,17 @@ if (appArgs.length <= 0) {
 }
 
 const NUM_LEDS = parseInt(process.argv[2], 10) || 10
-const pixelData = new Uint32Array(NUM_LEDS)
 
-ws281x.init(NUM_LEDS)
-ws281x.setBrightness(CONFIG.WS281X.brightness)
+const channel = ws281x_arm7(NUM_LEDS, {
+  brightness: CONFIG.WS281X.brightness,
+  stripType: 'ws2812'
+})
+const pixelData = channel.array
 
 // ---- trap the SIGINT and reset before exit
 process.on('SIGINT', function () {
-  ws281x.reset()
+  ws281x_arm7.reset()
+  ws281x_arm7.finalize()
   process.nextTick(function () { process.exit(0); })
 })
 
@@ -33,7 +36,7 @@ setInterval(function () {
   }
 
   offset = (offset + 1) % 256
-  ws281x.render(pixelData)
+  ws281x_arm7.render()
 }, 1000 / 30)
 
 console.log('Press <ctrl>+C to exit.')
