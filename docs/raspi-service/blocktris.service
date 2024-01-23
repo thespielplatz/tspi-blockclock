@@ -1,0 +1,14 @@
+[Unit]
+Description=Raspberry Pi Blocktris
+After=multi-user.target
+
+[Service]
+ExecStart=node /PATH/TO/BLOCKTRIS/app_blocktris.js
+WorkingDirectory=/PATH/TO/BLOCKTRIS/
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target
