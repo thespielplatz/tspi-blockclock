@@ -29,6 +29,7 @@ class ReadyScreen extends ScreenPrototype {
     this.step = 0
 
     this.sg.broadcast('ready')
+    this.switchToIdleScreenAfterDelay()
   }
 
   onRender(fps) {
@@ -72,6 +73,29 @@ class ReadyScreen extends ScreenPrototype {
       this.display.writeChar(16, 5, 's', true)
     } else {
       this.display.writeLine('Tetris', 7, 1, true)
+    }
+  }
+
+  switchToIdleScreenAfterDelay() {
+    const idleTimeout = parseInt(process.env.BLOCKTRIS_IDLE_MODE_TIMEOUT * 1000) || 60000
+    if (Number.isNaN(idleTimeout) || idleTimeout < 0) {
+      console.error('Invalid BLOCKTRIS_IDLE_MODE_TIMEOUT, has to be a positive number')
+      return
+    }
+    setTimeout(() => this.switchToIdleScreen(), idleTimeout)
+  }
+
+  switchToIdleScreen() {
+    if (!this.isActive) {
+      return
+    }
+
+    switch (process.env.BLOCKTRIS_IDLE_MODE) {
+      case 'clock':
+        this.sm.switchTo(Screen.READY_CLOCK)
+        break
+      default:
+        break
     }
   }
 }

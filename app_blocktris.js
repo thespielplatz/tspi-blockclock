@@ -8,6 +8,7 @@ const Screen = require('./blocktris/screen')
 
 const Startup = require('./blocktris/screen-startup')
 const Ready = require('./blocktris/screen-ready')
+const ReadyClock = require('./blocktris/screen-ready-clock')
 const Game = require('./blocktris/screen-game')
 const GameOver = require('./blocktris/screen-gameover')
 const PixelDisplay = require('./lib/PixelDisplay')
@@ -33,9 +34,9 @@ const display = new PixelDisplay(WIDTH, HEIGHT)
 display.setColors(0xFFFFFF, PixelDisplay.NOT_SET)
 
 // ------------ socket.games connection
-const SCREEN_ID = process.env.SCREEN_ID || 'tspi-blockclock'
+const SCREEN_ID = process.env.BLOCKTRIS_SCREEN_ID || 'tspi-blockclock'
 const socketGames = new SocketGames({
-  url: process.env.SOCKET_API,
+  url: process.env.BLOCKTRIS_SOCKET_API,
   screenId: SCREEN_ID,
   onConnect: (data) => {
     if (data.screenId !== SCREEN_ID) {
@@ -59,11 +60,11 @@ const socketGames = new SocketGames({
 sm = new StateMachine.StateMachine()
 sm.addScreen(Screen.STARTUP, new Startup(sm, display))
 sm.addScreen(Screen.READY, new Ready(sm, display, socketGames))
+sm.addScreen(Screen.READY_CLOCK, new ReadyClock(sm, display, socketGames))
 sm.addScreen(Screen.GAME, new Game(sm, display, socketGames))
 sm.addScreen(Screen.GAME_OVER, new GameOver(sm, display, socketGames))
 
 sm.switchTo(Screen.STARTUP)
-//setTimeout(() => { sm.switchTo(Screen.GAME)}, 1000)
 
 let inFrame = false
 setInterval(function () {
