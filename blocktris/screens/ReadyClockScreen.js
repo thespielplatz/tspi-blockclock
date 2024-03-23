@@ -1,6 +1,6 @@
-const ReadyScreen = require('./screen-ready')
+const ReadyScreen = require('./ReadyScreen')
 
-class ScreenReadyClock extends ReadyScreen {
+class ReadyClockScreen extends ReadyScreen {
   onRender() {
     const time = this.getCurrentTime()
 
@@ -22,4 +22,4 @@ class ScreenReadyClock extends ReadyScreen {
   }
 }
 
-module.exports = ScreenReadyClock
+module.exports = ReadyClockScreen

@@ -1,6 +1,7 @@
-const ScreenPrototype = require('../lib/StateMachine/AbstractState.js')
-const Piece = require('.//tetris/piece')
-const Screen = require('./screen')
+const ScreenPrototype = require('../../lib/StateMachine/AbstractState.js')
+
+const Piece = require('../tetris/piece.js')
+const Screen = require('../ScreenStates.js')
 
 class ReadyScreen extends ScreenPrototype {
   constructor(sm, display, sg) {
@@ -13,7 +14,7 @@ class ReadyScreen extends ScreenPrototype {
     this.activePiece = null
   }
 
-  onPlayerPlay({ key, name }, controllerId) {
+  onPlayerPlay({ key }, controllerId) {
     // Screen not visible
     if (!this.isActive) {
       this.sg.emit('not-ready', null, controllerId)
@@ -24,7 +25,7 @@ class ReadyScreen extends ScreenPrototype {
     this.sm.switchTo(Screen.GAME, { controllerId, key })
   }
 
-  onEnter(options) {
+  onEnter() {
     this.display.fill(0x000000)
     this.step = 0
 

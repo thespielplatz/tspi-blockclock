@@ -1,7 +1,7 @@
-const ScreenPrototype = require('../lib/StateMachine/AbstractState.js')
-const Screen = require('./screen')
+const ScreenPrototype = require('../../lib/StateMachine/AbstractState.js')
 
-const Tetris = require('./tetris/tetris.js')
+const Tetris = require('../tetris/tetris.js')
+const Screen = require('../ScreenStates.js')
 let tetris
 
 class GameScreen extends ScreenPrototype {

@@ -1,7 +1,7 @@
-const ScreenPrototype = require('../lib/StateMachine/AbstractState.js')
+const ScreenPrototype = require('../../lib/StateMachine/AbstractState.js')
 
 class StartupScreen extends ScreenPrototype {
-  onEnter(options) {
+  onEnter() {
     this.display.fill(0x000000)
     this.display.setColors(0xFFFFFF)
     if (this.is25x10) {

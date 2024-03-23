@@ -1,17 +1,17 @@
-console.info('Blocktris Starting ...')
+console.info('Blocktris starting ...')
 
 require('dotenv').config()
 const RendererFactory = require('./lib/Renderer/RendererFactory.js')
-const SocketGames = require('./blocktris/SocketGames.js')
 const StateMachine = require('./lib/StateMachine/StateMachine')
-const Screen = require('./blocktris/screen')
-
-const Startup = require('./blocktris/screen-startup')
-const Ready = require('./blocktris/screen-ready')
-const ReadyClock = require('./blocktris/screen-ready-clock')
-const Game = require('./blocktris/screen-game')
-const GameOver = require('./blocktris/screen-gameover')
 const PixelDisplay = require('./lib/PixelDisplay')
+
+const Startup = require('./blocktris/screens/StartupScreen.js')
+const Ready = require('./blocktris/screens/ReadyScreen.js')
+const ReadyClock = require('./blocktris/screens/ReadyClockScreen.js')
+const Game = require('./blocktris/screens/GameScreen.js')
+const GameOver = require('./blocktris/screens/GameOverScreen.js')
+const ScreenStates = require('./blocktris/ScreenStates.js')
+const SocketGames = require('./blocktris/SocketGames.js')
 
 const FPS = parseInt(process.env.DISPLAY_FPS) || 60
 const WIDTH = parseInt(process.env.DISPLAY_WIDTH) || 50
@@ -21,7 +21,6 @@ const REVERTED_ROWS = process.env.DISPLAY_REVERTED_ROWS || ''
 const NUM_LEDS = WIDTH * HEIGHT
 
 // ------------ Renderer and Display
-
 const renderer = RendererFactory.getRenderer({
   numLeds: NUM_LEDS,
   brightness: BRIGHTNESS,
@@ -29,9 +28,11 @@ const renderer = RendererFactory.getRenderer({
   revertedRows: REVERTED_ROWS,
 })
 renderer.init()
+console.info('- renderer initialized')
 
 const display = new PixelDisplay(WIDTH, HEIGHT)
 display.setColors(0xFFFFFF, PixelDisplay.NOT_SET)
+console.info('- display initialized')
 
 // ------------ socket.games connection
 const SCREEN_ID = process.env.BLOCKTRIS_SCREEN_ID || 'tspi-blockclock'
@@ -41,41 +42,41 @@ const socketGames = new SocketGames({
   onConnect: (data) => {
     if (data.screenId !== SCREEN_ID) {
       console.error('wrong screenId sent from BE!')
-      sm.switchTo(Screen.STARTUP)
-      sm.sendMessage({ message: 'error', text: 'S:screen id'})
+      stateMachine.switchTo(ScreenStates.STARTUP)
+      stateMachine.sendMessage({ message: 'error', text: 'S:screen id'})
       return
     }
 
-    sm.switchTo(Screen.READY)
+    stateMachine.switchTo(ScreenStates.READY)
   },
   onError: (error) => {
     console.error('SocketGames: onError', { error })
-    sm.switchTo(Screen.STARTUP)
-    sm.sendMessage({ message: 'error', text: 'S:error'})
+    stateMachine.switchTo(ScreenStates.STARTUP)
+    stateMachine.sendMessage({ message: 'error', text: 'S:error'})
   },
 })
+console.info('- socket connection initialized')
 
 // ------------ Main State Machine
-
-sm = new StateMachine.StateMachine()
-sm.addScreen(Screen.STARTUP, new Startup(sm, display))
-sm.addScreen(Screen.READY, new Ready(sm, display, socketGames))
-sm.addScreen(Screen.READY_CLOCK, new ReadyClock(sm, display, socketGames))
-sm.addScreen(Screen.GAME, new Game(sm, display, socketGames))
-sm.addScreen(Screen.GAME_OVER, new GameOver(sm, display, socketGames))
-
-sm.switchTo(Screen.STARTUP)
+const stateMachine = new StateMachine.StateMachine()
+stateMachine.addScreen(ScreenStates.STARTUP, new Startup(stateMachine, display))
+stateMachine.addScreen(ScreenStates.READY, new Ready(stateMachine, display, socketGames))
+stateMachine.addScreen(ScreenStates.READY_CLOCK, new ReadyClock(stateMachine, display, socketGames))
+stateMachine.addScreen(ScreenStates.GAME, new Game(stateMachine, display, socketGames))
+stateMachine.addScreen(ScreenStates.GAME_OVER, new GameOver(stateMachine, display, socketGames))
+stateMachine.switchTo(ScreenStates.STARTUP)
 
 let inFrame = false
-setInterval(function () {
+const renderFrame = () => {
+  setTimeout(renderFrame, 1000 / FPS)
   if (inFrame) {
-    console.log('Frameskip')
+    console.info('⚠️ frameskip ⚠️')
     return
   }
   inFrame = true
-  sm.onRender(FPS)
+  stateMachine.onRender(FPS)
   renderer.render(display.getPixelData())
   inFrame = false
-}, 1000 / FPS)
-
-
+}
+renderFrame()
+console.info('Blocktris started')

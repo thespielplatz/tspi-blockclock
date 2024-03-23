@@ -1,5 +1,6 @@
-const ScreenPrototype = require('../lib/StateMachine/AbstractState.js')
-const Screen = require('./screen')
+const ScreenPrototype = require('../../lib/StateMachine/AbstractState.js')
+
+const Screen = require('../ScreenStates.js')
 
 class GameOverScreen extends ScreenPrototype {
   constructor(sm, display, sg) {
@@ -8,7 +9,7 @@ class GameOverScreen extends ScreenPrototype {
     this.sg = sg
   }
 
-  onEnter(options) {
+  onEnter() {
     console.info('enter game over')
     this.display.fill(0x000000)
     this.display.setColors(0xFFFFFF)
