@@ -1,12 +1,10 @@
 const CharacterDefinition = require('./CharacterDefinition.js')
 
-const BLACK = 0
-const NOT_SET = -1
 const DEFAULT_OPTIONS = {
-  width: 10,
-  height: 25,
+  displayWidth: 10,
+  displayHeight: 25,
   color: 0xA0A0A0,
-  noColor: BLACK,
+  backgroundColor: 0x000000,
   lineHeight: 5,
   lineSpacing: 1,
   charSpacing: 1,
@@ -29,10 +27,10 @@ class PixelRenderer {
       ...DEFAULT_OPTIONS,
       ...options,
     }
-    this.width = mergedOptions.width
-    this.height = mergedOptions.height
+    this.displayWidth = mergedOptions.displayWidth
+    this.displayHeight = mergedOptions.displayHeight
     this.color = mergedOptions.color
-    this.noColor = mergedOptions.noColor
+    this.backgroundColor = mergedOptions.backgroundColor
     this.lineHeight = mergedOptions.lineHeight
     this.lineSpacing = mergedOptions.lineSpacing
     this.charSpacing = mergedOptions.charSpacing
@@ -52,8 +50,8 @@ class PixelRenderer {
    * 0,0 is in top left corner
    */
   initPixelData() {
-    this.pixelData = new Array(this.width)
-      .map(() => new Uint32Array(this.height).fill(NOT_SET))
+    this.pixelData = [...new Array(this.displayWidth)]
+      .map(() => new Uint32Array(this.displayHeight).fill(this.backgroundColor))
   }
 
   initCursor() {
@@ -64,9 +62,13 @@ class PixelRenderer {
     this.initCursor()
   }
 
-  setColors = (color, noColor = NOT_SET) => {
+  setColors = (color, backgroundColor = this.backgroundColor) => {
     this.color = color
-    this.noColor = noColor
+    this.backgroundColor = backgroundColor
+  }
+
+  clear() {
+    this.fill(this.backgroundColor)
   }
 
   /**
@@ -105,7 +107,7 @@ class PixelRenderer {
       return
     }
 
-    for (let x = 0; x < characterDefinition.length; x += 1) {
+    for (let x = 0; x < characterDefinition.width; x += 1) {
       const deltaY = this.lineHeight - characterDefinition.height
       for (let y = 0; y < characterDefinition.height; y +=1) {
         if (characterDefinition.checkPixel(x, y)) {
@@ -117,6 +119,12 @@ class PixelRenderer {
         }
       }
     }
+
+    this.moveCursor(characterDefinition.width + this.charSpacing)
+  }
+
+  moveCursor(distance) {
+    this.cursor.x += distance
   }
 
   /**
