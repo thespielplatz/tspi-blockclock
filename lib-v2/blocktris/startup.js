@@ -38,7 +38,7 @@ const startup = () => {
       return
     }
     inFrame = true
-    renderer.writeChar('a')
+    renderer.writeLine('a bc')
     display.draw(renderer.pixelData)
     inFrame = false
   }

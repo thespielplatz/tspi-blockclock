@@ -108,6 +108,11 @@ class PixelRenderer {
       return
     }
 
+    this.drawCharacterAtCursor(characterDefinition)
+    this.moveCursor(characterDefinition.width + this.charSpacing)
+  }
+
+  drawCharacterAtCursor(characterDefinition) {
     for (let x = 0; x < characterDefinition.width; x += 1) {
       const deltaY = this.lineHeight - characterDefinition.height
       for (let y = 0; y < characterDefinition.height; y +=1) {
@@ -120,8 +125,6 @@ class PixelRenderer {
         }
       }
     }
-
-    this.moveCursor(characterDefinition.width + this.charSpacing)
   }
 
   moveCursor(distance) {
@@ -137,13 +140,15 @@ class PixelRenderer {
   }
 
   writeLine(text) {
-    let formatted = text.toString().toLowerCase()
-    formatted = formatted.match(/.{1}/ug)
+    const preparedText = this.prepareTextForWriting(text)
+    preparedText.forEach((char) => this.writeChar(char))
+  }
 
-    for (let i = 0; i < formatted.length; i++) {
-      const char = formatted[i]
-      this.writeChar(char)
-    }
+  prepareTextForWriting(text) {
+    return text
+      .toString()
+      .toLowerCase()
+      .match(/.{1}/ug)
   }
 }
 
