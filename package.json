@@ -7,7 +7,7 @@
     "run": "node build/app.js",
     "dev-blockclock": "nodemon app_blockclock.js",
     "dev-blocktris": "nodemon app_blocktris.js",
-    "dev-tom": "nodemon app_tom.js",
+    "dev-blocktris-v2": "nodemon app_blocktris_v2.js",
     "build": "tsc --project tsconfig.json",
     "test": "echo \\\"Error: no samples specified\\\" && exit 1"
   },
