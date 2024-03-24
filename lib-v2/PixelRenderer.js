@@ -22,7 +22,8 @@ class Cursor {
 }
 
 class PixelRenderer {
-  constructor(options) {
+  constructor({ logger, options }) {
+    this.logger = logger
     const mergedOptions = {
       ...DEFAULT_OPTIONS,
       ...options,
@@ -88,22 +89,22 @@ class PixelRenderer {
   writeChar(char) {
     const characterDefinition = CharacterDefinition.forChar(char)
     if (characterDefinition == null) {
-      console.warn(`Char: ${char} not in charset`)
+      this.logger.warn(`Char: ${char} not in charset`)
       return
     }
     if (this.paddingLeft + characterDefinition.width + this.paddingRight > this.displayWidth) {
-      console.warn(`Char: ${char} too wide for the current display to render`)
+      this.logger.warn(`Char: ${char} too wide for the current display to render`)
       return
     }
     if (this.paddingTop + characterDefinition.height + this.paddingBottom > this.displayHeight) {
-      console.warn(`Char: ${char} too high for the current display to render`)
+      this.logger.warn(`Char: ${char} too high for the current display to render`)
       return
     }
     if (this.cursor.x + characterDefinition.width + this.paddingRight > this.displayWidth) {
       this.carriageReturn()
     }
     if (this.cursor.y + this.lineHeight + this.paddingBottom > this.displayHeight) {
-      console.warn(`End of display reached, channot draw next char: ${char}`)
+      this.logger.warn(`End of display reached, channot draw next char: ${char}`)
       return
     }
 
