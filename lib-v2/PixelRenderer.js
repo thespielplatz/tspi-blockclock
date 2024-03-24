@@ -1,6 +1,6 @@
 const CharacterDefinition = require('./CharacterDefinition.js')
 
-const DEFAULT_OPTIONS = {
+const defaultOptions = {
   displayWidth: 10,
   displayHeight: 25,
   color: 0xA0A0A0,
@@ -25,7 +25,7 @@ class PixelRenderer {
   constructor({ logger, options }) {
     this.logger = logger
     const mergedOptions = {
-      ...DEFAULT_OPTIONS,
+      ...defaultOptions,
       ...options,
     }
     this.displayWidth = mergedOptions.displayWidth

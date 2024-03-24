@@ -52,10 +52,16 @@ class FileLogger {
         if (typeof value === 'string') {
           return value
         }
+        if (value instanceof Error) {
+          return JSON.stringify(value, Object.getOwnPropertyNames(value), '  ')
+        }
         try {
           return util.inspect(value)
+        } catch (error) {}
+        try {
+          return JSON.stringify(value, undefined, '  ')
         } catch (error) {
-          return 'stringifyArgs: Unable to util.inspect value, check error logs'
+          return 'stringifyArgs: Unable to stringify value, check error logs'
         }
       })
       .join('\n')

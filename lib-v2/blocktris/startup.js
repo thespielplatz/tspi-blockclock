@@ -4,8 +4,9 @@ const {
 } = require('../display/DisplayFactory')
 const getLogger = require('../Logger')
 const PixelRenderer = require('../PixelRenderer')
+const SocketGames = require('../SocketGames')
 
-const startup = () => {
+const startup = async () => {
   const isWS281xSupported = DisplayFactory.isWS281xSupported()
   const logToFile = isWS281xSupported instanceof WS281xNotSupported
 
@@ -24,7 +25,29 @@ const startup = () => {
   logger.info('- display initialized')
 
   // ------------ SocketGames Connection
-  logger.info('- TODO : add socket.games connection')
+  const url = process.env.BLOCKTRIS_SOCKET_API
+  logger.info(`- conecting to socket server ${url}`)
+  const screenId = process.env.BLOCKTRIS_SCREEN_ID
+  const socketGames = new SocketGames({ url, screenId })
+  try {
+    const data = await socketGames.init()
+    if (data.screenId !== screenId) {
+      logger.error(
+        'wrong screenId sent from socket server',
+        { url, screenId },
+        data,
+      )
+      process.exit(1)
+    }
+  } catch (error) {
+    logger.error(
+      'unable to connect to socket server',
+      { url, screenId },
+      error,
+    )
+    process.exit(1)
+  }
+  logger.info(`- ${url} connection initialized`)
 
   // ------------ Main State Machine
   logger.info('- TODO : add state machine')
