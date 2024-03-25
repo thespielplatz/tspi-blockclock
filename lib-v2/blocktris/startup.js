@@ -3,9 +3,14 @@ const {
   Ws281xNotSupported,
 } = require('../outputRenderers/OutputRendererFactory')
 const ConsoleOutputRenderer = require('../outputRenderers/ConsoleOutputRenderer')
+const ScreenManager = require('../screenManager/ScreenManager')
+const ErrorScreen = require('../screens/ErrorScreen')
+const StartupScreen = require('../screens/StartupScreen')
 const getLogger = require('../Logger')
 const PixelDisplayRenderer = require('../PixelDisplayRenderer')
 const SocketGames = require('../SocketGames')
+
+const FPS = parseInt(process.env.DISPLAY_FPS) || 60
 
 const startup = async () => {
   // ------------ OutputRenderer + Logger
@@ -18,11 +23,40 @@ const startup = async () => {
   if (isWs281xSupported instanceof Ws281xNotSupported) {
     logger.warn(`drawing blocktris on stdout: ${isWs281xSupported.reason}`)
   }
-  logger.info('- display initialized')
+  logger.info('- outputRenderer initialized')
 
   // ------------ PixelDisplayRenderer
   const displayRenderer = new PixelDisplayRenderer({ logger })
   logger.info('- displayRenderer initialized')
+
+  // ------------ ScreenManager
+  const screenManager = new ScreenManager({ logger })
+  screenManager.addScreen(new StartupScreen({ screenManager, displayRenderer, logger }))
+  screenManager.switchToScreenOnNextFrame(StartupScreen.name)
+  const switchToErrorScreenAndExit = (message, error) => {
+    logger.error(message, { url, screenId }, error)
+    screenManager.addScreen(new ErrorScreen({ screenManager, displayRenderer, logger }))
+    screenManager.switchToScreenOnNextFrame(ErrorScreen.name)
+    renderFrame()
+    process.exit(1)
+  }
+  logger.info('- screenManager initialized')
+
+  // ------------ Game Loop
+  let inFrame = false
+  const renderFrame = () => {
+    setTimeout(renderFrame, 1000 / FPS)
+    if (inFrame) {
+      logger.warn('⚠️ frameskip ⚠️')
+      return
+    }
+    inFrame = true
+    screenManager.render(FPS)
+    outputRenderer.render(displayRenderer.pixelData)
+    inFrame = false
+  }
+  renderFrame()
+  logger.info('- game loop started')
 
   // ------------ SocketGames Connection
   const url = process.env.BLOCKTRIS_SOCKET_API
@@ -32,41 +66,12 @@ const startup = async () => {
   try {
     const data = await socketGames.init()
     if (data.screenId !== screenId) {
-      logger.error(
-        'wrong screenId sent from socket server',
-        { url, screenId },
-        data,
-      )
-      process.exit(1)
+      switchToErrorScreenAndExit('wrong screenId sent from socket server', data)
     }
   } catch (error) {
-    logger.error(
-      'unable to connect to socket server',
-      { url, screenId },
-      error,
-    )
-    process.exit(1)
+    switchToErrorScreenAndExit('unable to connect to socket server', error)
   }
   logger.info(`- socket server ${url} connection established`)
-
-  // ------------ Main State Machine
-  logger.info('- TODO : add state machine')
-  let inFrame = false
-
-  // ------------ Game Loop
-  const renderFrame = () => {
-    setTimeout(renderFrame, 3000)
-    if (inFrame) {
-      logger.warn('⚠️ frameskip ⚠️')
-      return
-    }
-    inFrame = true
-    displayRenderer.writeLine('a bc')
-    outputRenderer.render(displayRenderer.pixelData)
-    inFrame = false
-  }
-  renderFrame()
-  logger.info('- game loop started')
 
   logger.info('Blocktris started')
 }
