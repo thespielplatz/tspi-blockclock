@@ -21,7 +21,7 @@ class Cursor {
   }
 }
 
-class PixelRenderer {
+class PixelDisplayRenderer {
   constructor({ logger, options }) {
     this.logger = logger
     const mergedOptions = {
@@ -152,4 +152,4 @@ class PixelRenderer {
   }
 }
 
-module.exports = PixelRenderer
+module.exports = PixelDisplayRenderer

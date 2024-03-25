@@ -1,6 +1,6 @@
 const Jetty = require('jetty')
 
-class ConsoleDisplay {
+class ConsoleOutputRenderer {
   constructor() {
     this.jetty = new Jetty(process.stdout)
     this.jetty.reset().clear().moveTo([0, 0])
@@ -12,7 +12,7 @@ class ConsoleDisplay {
    * y is vertical
    * 0,0 is in top left corner
    */
-  draw(pixelData) {
+  render(pixelData) {
     pixelData.forEach((column, x) => column.forEach((color, y) => {
       const r = Math.floor(((0xFF0000 & color) >> 16) / 255 * 5)
       const g = Math.floor(((0xFF00 & color) >> 8) / 255 * 5)
@@ -25,4 +25,4 @@ class ConsoleDisplay {
   }
 }
 
-module.exports = ConsoleDisplay
+module.exports = ConsoleOutputRenderer

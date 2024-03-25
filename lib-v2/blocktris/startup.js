@@ -1,32 +1,32 @@
 const {
-  DisplayFactory,
-  WS281xNotSupported,
-} = require('../display/DisplayFactory')
+  OutputRendererFactory,
+  Ws281xNotSupported,
+} = require('../outputRenderers/OutputRendererFactory')
+const ConsoleOutputRenderer = require('../outputRenderers/ConsoleOutputRenderer')
 const getLogger = require('../Logger')
-const PixelRenderer = require('../PixelRenderer')
+const PixelDisplayRenderer = require('../PixelDisplayRenderer')
 const SocketGames = require('../SocketGames')
 
 const startup = async () => {
-  const isWS281xSupported = DisplayFactory.isWS281xSupported()
-  const logToFile = isWS281xSupported instanceof WS281xNotSupported
-
-  const logger = getLogger({ logToFile })
+  // ------------ OutputRenderer + Logger
+  const {
+    outputRenderer,
+    isWs281xSupported,
+  } = OutputRendererFactory.getOutputRenderer()
+  const logger = getLogger({ logToFile: outputRenderer instanceof ConsoleOutputRenderer })
   logger.info('Blocktris starting up ...')
-
-  // ------------ Renderer
-  const renderer = new PixelRenderer({ logger })
-  logger.info('- renderer initialized')
-
-  // ------------ Display
-  const display = DisplayFactory.getDisplay()
-  if (isWS281xSupported instanceof WS281xNotSupported) {
-    logger.warn(`drawing blocktris on stdout: ${isWS281xSupported.reason}`)
+  if (isWs281xSupported instanceof Ws281xNotSupported) {
+    logger.warn(`drawing blocktris on stdout: ${isWs281xSupported.reason}`)
   }
   logger.info('- display initialized')
 
+  // ------------ PixelDisplayRenderer
+  const displayRenderer = new PixelDisplayRenderer({ logger })
+  logger.info('- displayRenderer initialized')
+
   // ------------ SocketGames Connection
   const url = process.env.BLOCKTRIS_SOCKET_API
-  logger.info(`- conecting to socket server ${url}`)
+  logger.info(`- connecting to socket server ${url}`)
   const screenId = process.env.BLOCKTRIS_SCREEN_ID
   const socketGames = new SocketGames({ url, screenId })
   try {
@@ -47,7 +47,7 @@ const startup = async () => {
     )
     process.exit(1)
   }
-  logger.info(`- ${url} connection initialized`)
+  logger.info(`- socket server ${url} connection established`)
 
   // ------------ Main State Machine
   logger.info('- TODO : add state machine')
@@ -61,8 +61,8 @@ const startup = async () => {
       return
     }
     inFrame = true
-    renderer.writeLine('a bc')
-    display.draw(renderer.pixelData)
+    displayRenderer.writeLine('a bc')
+    outputRenderer.render(displayRenderer.pixelData)
     inFrame = false
   }
   renderFrame()
