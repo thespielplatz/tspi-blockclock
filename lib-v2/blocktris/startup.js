@@ -9,6 +9,7 @@ const StartupScreen = require('../screens/StartupScreen')
 const getLogger = require('../Logger')
 const PixelDisplayRenderer = require('../PixelDisplayRenderer')
 const SocketGames = require('../SocketGames')
+const ReadyScreen = require('./screens/ReadyScreen')
 
 const FPS = parseInt(process.env.DISPLAY_FPS) || 60
 
@@ -71,6 +72,13 @@ const startup = async () => {
   } catch (error) {
     switchToErrorScreenAndExit('unable to connect to socket server', error)
   }
+  await new Promise((resolve) => setTimeout(resolve, 1500))
+  screenManager.addScreen(new ReadyScreen({
+    screenManager, displayRenderer, logger,
+    socketGames,
+    switchToIdleScreenAfterMilliSeconds: parseInt(process.env.BLOCKTRIS_IDLE_SCREEN_AFTER_MS) || 0,
+  }))
+  screenManager.switchToScreenOnNextFrame(ReadyScreen.name)
   logger.info(`- socket server ${url} connection established`)
 
   logger.info('Blocktris started')
