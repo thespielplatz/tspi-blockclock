@@ -1,28 +1,42 @@
+const GameScreen = require('./GameScreen.js')
+const ReadyClockScreen = require('./ReadyClockScreen.js')
+const Tetris = require('../tetris/Tetris.js')
 const AbstractScreen = require('../../screenManager/AbstractScreen.js')
 
-class GameScreen extends AbstractScreen {}
-
-class ReadyClockScreen extends AbstractScreen {}
+const defaultOptions = {
+  displayWidth: 10,
+  displayHeight: 25,
+  switchToIdleScreenAfterMilliSeconds: 10000,
+}
 
 class ReadyScreen extends AbstractScreen {
-  constructor(options) {
-    super(options)
+  constructor(dependencies, options) {
+    super(dependencies)
+    const mergedOptions = {
+      ...defaultOptions,
+      ...options,
+    }
 
-    this.socketGames = options.socketGames
+    this.socketGames = dependencies.socketGames
     this.socketGames.on('play', this.onPlay.bind(this))
-    this.switchToIdleScreenAfterMilliSeconds = options.switchToIdleScreenAfterMilliSeconds
 
-    this.step = 0
-    this.activePiece = null
+    this.displayWidth = mergedOptions.displayWidth
+    this.displayHeight = mergedOptions.displayHeight
+    this.switchToIdleScreenAfterMilliSeconds = mergedOptions.switchToIdleScreenAfterMilliSeconds
+
+    this.brightness = 0
+    this.tetris = new Tetris(mergedOptions)
     this.switchToIdleScreenTimeout = null
   }
 
   enter(options = {}) {
     super.enter(options)
-    this.displayRenderer.fill(0x000000)
-    this.step = 0
 
     this.socketGames.broadcast('ready')
+
+    this.brightness = 0
+    this.tetris.startNewGame()
+
     if (this.switchToIdleScreenAfterMilliSeconds > 0) {
       this._switchToIdleScreenAfterDelay()
     }
@@ -30,19 +44,27 @@ class ReadyScreen extends AbstractScreen {
 
   leave() {
     super.leave()
+
     if (this.switchToIdleScreenTimeout != null) { 
       clearTimeout(this.switchToIdleScreenTimeout)
       this.switchToIdleScreenTimeout = null
     }
   }
 
-  render(fps) {
-    super.render(fps)
-    this.step += 1.0 / fps
-    const brightness = Math.min(this.step * 0.25, 1) * 0xFF
-    this.displayRenderer.fill(0x000000)
-    this.displayRenderer.setColors((brightness << 16) + (brightness << 8) + brightness)
+  render(updateDeltaInMillis) {
+    super.render(updateDeltaInMillis)
 
+    // draw background
+    this.displayRenderer.fill(0x000000)
+
+    // draw tetris game in background
+    this.tetris.update(updateDeltaInMillis)
+    this.tetris.render(this.displayRenderer)
+
+    // draw text
+    this.brightness += updateDeltaInMillis * 0.00025
+    const color = Math.min(this.brightness, 1) * 0xFF
+    this.displayRenderer.setColors((color << 16) + (color << 8) + color)
     this.displayRenderer.resetCursor()
     this.displayRenderer.writeLine('Tetris')
   }

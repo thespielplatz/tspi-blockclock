@@ -15,12 +15,12 @@ class ScreenManager {
     this.nextScreen = { screenName, options }
   }
 
-  render(fps) {
+  render(updateDeltaInMillis) {
     if (this.nextScreen != null) {
       this._switchToNextScreen()
     }
     if (this.activeScreen != null) {
-      this.activeScreen.render(fps)
+      this.activeScreen.render(updateDeltaInMillis)
     }
   }
 

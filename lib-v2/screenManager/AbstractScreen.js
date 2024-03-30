@@ -20,7 +20,7 @@ class AbstractScreen {
     this.isActive = false
   }
 
-  render(fps) {}
+  render(updateDeltaInMillis) {}
 }
 
 module.exports = AbstractScreen

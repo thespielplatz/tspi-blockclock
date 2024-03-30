@@ -45,6 +45,7 @@ const startup = async () => {
 
   // ------------ Game Loop
   let inFrame = false
+  let lastRender = Date.now()
   const renderFrame = () => {
     setTimeout(renderFrame, 1000 / FPS)
     if (inFrame) {
@@ -52,7 +53,10 @@ const startup = async () => {
       return
     }
     inFrame = true
-    screenManager.render(FPS)
+    const now = Date.now()
+    const updateDeltaInMillis = now - lastRender
+    lastRender = now
+    screenManager.render(updateDeltaInMillis)
     outputRenderer.render(displayRenderer.pixelData)
     inFrame = false
   }
