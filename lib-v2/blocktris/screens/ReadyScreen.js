@@ -12,20 +12,22 @@ const defaultOptions = {
 class ReadyScreen extends AbstractScreen {
   constructor(dependencies, options) {
     super(dependencies)
+    this.socketGames = dependencies.socketGames
+    this.socketGames.on('play', this.onPlay.bind(this))
+
     const mergedOptions = {
       ...defaultOptions,
       ...options,
     }
-
-    this.socketGames = dependencies.socketGames
-    this.socketGames.on('play', this.onPlay.bind(this))
-
     this.displayWidth = mergedOptions.displayWidth
     this.displayHeight = mergedOptions.displayHeight
     this.switchToIdleScreenAfterMilliSeconds = mergedOptions.switchToIdleScreenAfterMilliSeconds
 
     this.brightness = 0
-    this.tetris = new Tetris(mergedOptions)
+    this.tetris = new Tetris(dependencies, {
+      width: this.displayWidth,
+      height: this.displayHeight,
+    })
     this.switchToIdleScreenTimeout = null
   }
 
@@ -36,6 +38,7 @@ class ReadyScreen extends AbstractScreen {
 
     this.brightness = 0
     this.tetris.startNewGame()
+    this.tetris.totalScoredRows = 15
 
     if (this.switchToIdleScreenAfterMilliSeconds > 0) {
       this._switchToIdleScreenAfterDelay()
@@ -59,7 +62,7 @@ class ReadyScreen extends AbstractScreen {
 
     // draw tetris game in background
     this.tetris.update(updateDeltaInMillis)
-    this.tetris.render(this.displayRenderer)
+    this.tetris.render((x, y, color) => this.displayRenderer.setPixel(x, y, color))
 
     // draw text
     this.brightness += updateDeltaInMillis * 0.00025

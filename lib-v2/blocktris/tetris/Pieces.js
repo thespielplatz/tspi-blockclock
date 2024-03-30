@@ -20,7 +20,7 @@ class Pieces {
 }
 
 const pieces = new Pieces()
-pieces.push(new Piece(
+pieces.add(new Piece(
   0x70FFFF,
   [
     [1],
@@ -29,7 +29,7 @@ pieces.push(new Piece(
     [1],
   ],
 ))
-pieces.push(new Piece(
+pieces.add(new Piece(
   0x0000FF,
   [
     [0, 1],
@@ -37,7 +37,7 @@ pieces.push(new Piece(
     [1, 1],
   ],
 ))
-pieces.push(new Piece(
+pieces.add(new Piece(
   0xFFA000,
   [
     [1, 0],
@@ -45,14 +45,14 @@ pieces.push(new Piece(
     [1, 1],
   ],
 ))
-pieces.push(new Piece(
+pieces.add(new Piece(
   0xFFFF00,
   [
     [1, 1],
     [1, 1],
   ],
 ))
-pieces.push(new Piece(
+pieces.add(new Piece(
   0x00FF00,
   [
     [1, 0],
@@ -60,7 +60,7 @@ pieces.push(new Piece(
     [0, 1],
   ],
 ))
-pieces.push(new Piece(
+pieces.add(new Piece(
   0xA000FF,
   [
     [1, 0],
@@ -68,7 +68,7 @@ pieces.push(new Piece(
     [1, 0],
   ],
 ))
-pieces.push(new Piece(
+pieces.add(new Piece(
   0xFF0000,
   [
     [0, 1],

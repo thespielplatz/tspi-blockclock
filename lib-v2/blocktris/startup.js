@@ -80,6 +80,7 @@ const startup = async () => {
   screenManager.addScreen(new ReadyScreen({
     screenManager, displayRenderer, logger,
     socketGames,
+  }, {
     switchToIdleScreenAfterMilliSeconds: parseInt(process.env.BLOCKTRIS_IDLE_SCREEN_AFTER_MS) || 0,
   }))
   screenManager.switchToScreenOnNextFrame(ReadyScreen.name)

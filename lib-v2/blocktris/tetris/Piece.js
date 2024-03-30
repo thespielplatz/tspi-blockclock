@@ -6,3 +6,5 @@ class Piece {
     this.form = form
   }
 }
+
+module.exports = Piece
