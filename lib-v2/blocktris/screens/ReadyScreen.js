@@ -27,6 +27,9 @@ class ReadyScreen extends AbstractScreen {
     this.tetris = new Tetris(dependencies, {
       width: this.displayWidth,
       height: this.displayHeight,
+      callbacks: {
+        onGameOver: () => setTimeout(() => this._startTetris(), 1000),
+      },
     })
     this.switchToIdleScreenTimeout = null
   }
@@ -37,8 +40,7 @@ class ReadyScreen extends AbstractScreen {
     this.socketGames.broadcast('ready')
 
     this.brightness = 0
-    this.tetris.startNewGame()
-    this.tetris.totalScoredRows = 15
+    this._startTetris()
 
     if (this.switchToIdleScreenAfterMilliSeconds > 0) {
       this._switchToIdleScreenAfterDelay()
@@ -67,6 +69,7 @@ class ReadyScreen extends AbstractScreen {
     // draw text
     this.brightness += updateDeltaInMillis * 0.00025
     const color = Math.min(this.brightness, 1) * 0xFF
+    this.displayRenderer.paddingTop = 4
     this.displayRenderer.setColors((color << 16) + (color << 8) + color)
     this.displayRenderer.resetCursor()
     this.displayRenderer.writeLine('Tetris')
@@ -80,6 +83,11 @@ class ReadyScreen extends AbstractScreen {
 
     this.socketGames.emit('start', null, controllerId)
     this.screenManager.switchTo(GameScreen.name, { controllerId, key })
+  }
+
+  _startTetris() {
+    this.tetris.startNewGame()
+    this.tetris.totalScoredRows = 80
   }
 
   _switchToIdleScreenAfterDelay() {

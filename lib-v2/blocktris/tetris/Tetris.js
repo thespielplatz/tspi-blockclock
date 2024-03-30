@@ -1,8 +1,15 @@
 const pieces = require('./Pieces')
 
+const stateNone = 'none'
+const stateRunning = 'running'
+const stateGameOver = 'gameOver'
+
 const defaultOptions = {
   width: 10,
   height: 20,
+  callbacks: {
+    onGameOver: () => undefined,
+  },
 }
 
 class Tetris {
@@ -15,16 +22,22 @@ class Tetris {
     }
     this.width = mergedOptions.width
     this.height = mergedOptions.height
+    this.callbacks = mergedOptions.callbacks
+
+    this.state = stateNone
   }
 
   startNewGame() {
     this._resetGameBoard()
     this._resetPieces()
     this._resetScore()
+    this.state = stateRunning
   }
 
   update(updateDeltaInMillis) {
-    this._checkGameOver()
+    if (this._isGameOver()) {
+      return
+    }
     this._spawnPieceIfNecessary()
     this._handlePlayerInput()
     this._updateCurrentPiece(updateDeltaInMillis)
@@ -69,8 +82,28 @@ class Tetris {
     this.totalScoredRows = 0
   }
 
-  _checkGameOver() {
+  _isGameOver() {
+    if (this.state === stateGameOver) {
+      return true
+    }
+    if (
+      this.currentPiece != null
+      || this._canSpawnPiece()
+    ) {
+      return false
+    }
+    this.state = stateGameOver
+    this.callbacks.onGameOver()
+    return true
+  }
 
+  _canSpawnPiece() {
+    return this.nextPiece.getCurrentForm().every((row, y) => row.every((value, x) => {
+      if (value !== 1) {
+        return true
+      }
+      return this.gameBoard[this.nextPiece.x + x][this.nextPiece.y + y] == null
+    }))
   }
 
   _spawnPieceIfNecessary() {
