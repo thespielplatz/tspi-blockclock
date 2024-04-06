@@ -1,17 +1,17 @@
-const GameScreen = require('./GameScreen.js')
-const ReadyClockScreen = require('./ReadyClockScreen.js')
-const Tetris = require('../tetris/Tetris.js')
 const AbstractScreen = require('../../screenManager/AbstractScreen.js')
+
+const Tetris = require('../tetris/Tetris.js')
+const { screenNames } = require('../constants.js')
 
 const defaultOptions = {
   displayWidth: 10,
   displayHeight: 25,
-  switchToIdleScreenAfterMilliSeconds: 10000,
+  switchToIdleScreenAfterMilliSeconds: 60000,
 }
 
 class ReadyScreen extends AbstractScreen {
   constructor(dependencies, options) {
-    super(dependencies)
+    super(dependencies, options)
     this.socketGames = dependencies.socketGames
     this.socketGames.on('play', this.onPlay.bind(this))
 
@@ -82,7 +82,7 @@ class ReadyScreen extends AbstractScreen {
     }
 
     this.socketGames.emit('start', null, controllerId)
-    this.screenManager.switchTo(GameScreen.name, { controllerId, key })
+    this.screenManager.switchTo(screenNames.game, { controllerId, key })
   }
 
   _startTetris() {
@@ -101,7 +101,7 @@ class ReadyScreen extends AbstractScreen {
     if (!this.isActive) {
       return
     }
-    this.screenManager.switchToScreenOnNextFrame(ReadyClockScreen.name)
+    this.screenManager.switchToScreenOnNextFrame(screenNames.readyClock)
   }
 }
 

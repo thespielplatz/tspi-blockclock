@@ -45,9 +45,22 @@ class Tetris {
   }
 
   render(setPixel) {
+    this._renderGameBoard(setPixel)
+    this._renderCurrentPiece(setPixel)
+  }
+
+  getCurrentLevel() {
+    const completedRowsPerLevel = 10
+    return Math.floor(this.totalScoredRows / completedRowsPerLevel) + 1
+  }
+
+  _renderGameBoard(setPixel) {
     this.gameBoard.forEach((column, x) => column.forEach((color, y) => {
       setPixel(x, y, color)
     }))
+  }
+
+  _renderCurrentPiece(setPixel) {
     if (this.currentPiece == null) {
       return
     }
@@ -61,11 +74,6 @@ class Tetris {
         this.currentPiece.piece.color,
       )
     }))
-  }
-
-  getCurrentLevel() {
-    const completedRowsPerLevel = 10
-    return Math.floor(this.totalScoredRows / completedRowsPerLevel) + 1
   }
 
   _resetGameBoard() {
@@ -110,6 +118,10 @@ class Tetris {
     if (this.currentPiece != null) {
       return
     }
+    this._spawnPiece()
+  }
+
+  _spawnPiece() {
     this.currentPiece = this.nextPiece
     this.nextPiece = pieces.getRandomGamePiece(this.width)
   }
@@ -125,6 +137,7 @@ class Tetris {
       return
     }
     if (!this._canCurrentPieceMove()) {
+      this._writeCurrentPieceIntoGameBoard()
       this._removeCurrentPiece()
       return
     }
@@ -152,13 +165,16 @@ class Tetris {
     }))
   }
 
-  _removeCurrentPiece() {
+  _writeCurrentPieceIntoGameBoard() {
     this.currentPiece.getCurrentForm().forEach((row, y) => row.forEach((value, x) => {
       if (value !== 1) {
         return
       }
       this.gameBoard[this.currentPiece.x + x][this.currentPiece.y + y] = this.currentPiece.piece.color
     }))
+  }
+
+  _removeCurrentPiece() {
     this.currentPiece = null
   }
 

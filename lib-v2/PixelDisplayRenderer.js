@@ -83,6 +83,9 @@ class PixelDisplayRenderer {
    * color is RGB in hex (e.g. 0xAA0000)
    */
   setPixel(x, y, color) {
+    if (x < 0 || x >= this.displayWidth || y < 0 || y >= this.displayHeight) {
+      return
+    }
     this.pixelData[x][y] = color
   }
 

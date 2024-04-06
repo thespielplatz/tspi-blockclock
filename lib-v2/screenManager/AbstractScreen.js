@@ -3,12 +3,13 @@ class AbstractScreen {
     screenManager,
     displayRenderer,
     logger,
-  }) {
+  }, { name }) {
     this.screenManager = screenManager
     this.displayRenderer = displayRenderer
     this.logger = logger
 
-    this.name = this.constructor.name
+    this.name = name
+
     this.isActive = false
   }
 

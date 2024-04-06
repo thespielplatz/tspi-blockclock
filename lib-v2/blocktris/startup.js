@@ -9,7 +9,10 @@ const StartupScreen = require('../screens/StartupScreen')
 const getLogger = require('../Logger')
 const PixelDisplayRenderer = require('../PixelDisplayRenderer')
 const SocketGames = require('../SocketGames')
+
+const ReadyClockScreen = require('./screens/ReadyClockScreen')
 const ReadyScreen = require('./screens/ReadyScreen')
+const { screenNames } = require('./constants')
 
 const FPS = parseInt(process.env.DISPLAY_FPS) || 60
 
@@ -32,12 +35,12 @@ const startup = async () => {
 
   // ------------ ScreenManager
   const screenManager = new ScreenManager({ logger })
-  screenManager.addScreen(new StartupScreen({ screenManager, displayRenderer, logger }))
-  screenManager.switchToScreenOnNextFrame(StartupScreen.name)
+  screenManager.addScreen(new StartupScreen({ screenManager, displayRenderer, logger }, { name: screenNames.startup }))
+  screenManager.switchToScreenOnNextFrame(screenNames.startup)
   const switchToErrorScreenAndExit = (message, error) => {
     logger.error(message, { url, screenId }, error)
-    screenManager.addScreen(new ErrorScreen({ screenManager, displayRenderer, logger }))
-    screenManager.switchToScreenOnNextFrame(ErrorScreen.name)
+    screenManager.addScreen(new ErrorScreen({ screenManager, displayRenderer, logger }, { name: screenNames.error }))
+    screenManager.switchToScreenOnNextFrame(screenNames.error)
     renderFrame()
     process.exit(1)
   }
@@ -77,13 +80,21 @@ const startup = async () => {
     switchToErrorScreenAndExit('unable to connect to socket server', error)
   }
   await new Promise((resolve) => setTimeout(resolve, 1500))
+  screenManager.addScreen(new ReadyClockScreen({
+    screenManager, displayRenderer, logger,
+    socketGames,
+  }, {
+    name: screenNames.readyClock,
+    dropPieceAfterEveryMilliSeconds: parseInt(process.env.BLOCKTRIS_IDLE_SCREEN_DROP_PIECE_AFTER_EVERY_MS) || 0,
+  }))
   screenManager.addScreen(new ReadyScreen({
     screenManager, displayRenderer, logger,
     socketGames,
   }, {
+    name: screenNames.ready,
     switchToIdleScreenAfterMilliSeconds: parseInt(process.env.BLOCKTRIS_IDLE_SCREEN_AFTER_MS) || 0,
   }))
-  screenManager.switchToScreenOnNextFrame(ReadyScreen.name)
+  screenManager.switchToScreenOnNextFrame(screenNames.ready)
   logger.info(`- socket server ${url} connection established`)
 
   logger.info('Blocktris started')

@@ -15,6 +15,14 @@ class GamePiece {
     // todo : handle orientation
     return this.piece.form
   }
+
+  width() {
+    return this.getCurrentForm()[0].length
+  }
+
+  height() {
+    return this.getCurrentForm().length
+  }
 }
 
 module.exports = GamePiece
